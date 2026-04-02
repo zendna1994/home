@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZEN-DNA | Resource Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --zen-blue: #23365D; --zen-maroon: #6C232E; --zen-gold: #D4A64A; --zen-white: #FFFFFF; }
+        
+        body { font-family: 'Poppins', sans-serif; background: #F4F6F9; margin: 0; padding: 10px; }
+
+        .archive-wrapper {
+            width: 100%; max-width: 1100px; margin: 0 auto; background: var(--zen-white);
+            border-radius: 16px; box-shadow: 0 10px 40px rgba(35,54,93,0.12);
+            display: flex; flex-direction: column; height: 95vh; overflow: hidden;
+        }
+
+        .archive-header { padding: 20px; border-bottom: 4px solid var(--zen-maroon); background: #fff; }
+        h2 { font-family: 'Playfair Display', serif; color: var(--zen-blue); margin: 0; font-size: 1.6rem; text-align: center; }
+
+        /* FILTERS */
+        .filter-toggle {
+            background: #f1f3f6; color: var(--zen-blue); border: none; width: 100%;
+            padding: 12px 20px; font-weight: 600; cursor: pointer; text-align: left;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .filter-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; background: #fbfbfb; }
+        .filter-content.active { max-height: 500px; border-bottom: 2px solid #eee; }
+
+        .filter-grid { 
+            display: grid; padding: 20px; gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+        }
+
+        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; width: 100%; box-sizing: border-box; }
+        label { font-size: 11px; font-weight: 600; color: var(--zen-blue); margin-bottom: 4px; display: block; }
+
+        /* CONTENT */
+        .stats-bar { padding: 8px 20px; font-size: 11px; background: #f1f3f6; color: #666; font-weight: 600; text-align: center; }
+        .archive-content { flex: 1; overflow-y: auto; padding: 15px; background: #fafafa; }
+
+        /* ITEM CARD */
+        .resource-item {
+            background: var(--zen-white); margin-bottom: 15px; border-radius: 14px;
+            padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: 0.3s;
+            border-left: 0px solid var(--zen-gold);
+        }
+        .resource-item:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); border-left: 5px solid var(--zen-gold); }
+
+        .item-layout { display: flex; gap: 15px; align-items: flex-start; }
+
+        .thumb-box { 
+            width: 85px; height: 85px; min-width: 85px; border-radius: 10px; 
+            overflow: hidden; cursor: pointer; background: #eee; border: 1px solid #eee;
+        }
+        .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        .details { flex: 1; }
+        .item-tag { font-size: 9px; font-weight: 700; color: var(--zen-gold); text-transform: uppercase; letter-spacing: 0.5px; }
+        .item-title { font-family: 'Playfair Display', serif; font-size: 1.15rem; color: var(--zen-blue); margin: 2px 0; cursor: pointer; font-weight: bold; }
+        .item-cat { font-size: 12px; font-weight: 600; color: var(--zen-maroon); margin-bottom: 2px; }
+        .item-meta { font-size: 10px; color: #777; margin-top: 2px; }
+        .item-desc { font-size: 11.5px; color: #444; margin-top: 8px; line-height: 1.5; }
+        .btn-link { display: inline-block; margin-top: 10px; font-size: 11px; text-decoration: none; color: var(--zen-blue); font-weight: 600; border: 1px solid var(--zen-blue); padding: 4px 10px; border-radius: 6px; transition: 0.3s; }
+        .btn-link:hover { background: var(--zen-blue); color: #fff; }
+
+        /* EXPANDABLE SLIDER */
+        .expanded-container { 
+            max-height: 0; overflow: hidden; transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+            margin-top: 15px; background: #111; border-radius: 12px; position: relative;
+        }
+        .expanded-container.open { max-height: 600px; padding: 10px; border: 2px solid var(--zen-gold); }
+
+        .inner-slider { position: relative; width: 100%; height: 400px; display: flex; align-items: center; justify-content: center; }
+        .inner-slider img { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
+        .inner-slider img.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .inner-nav { 
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(255,255,255,0.2); color: white; border: none;
+            width: 35px; height: 35px; border-radius: 50%; cursor: pointer;
+            backdrop-filter: blur(5px); font-size: 16px; z-index: 10;
+        }
+        .inner-nav:hover { background: var(--zen-gold); }
+        .btn-prev { left: 10px; } .btn-next { right: 10px; }
+
+        .skeleton { height: 100px; background: #eee; border-radius: 12px; margin-bottom: 15px; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+        @media (max-width: 600px) {
+            .item-layout { flex-direction: row; } 
+            .thumb-box { width: 70px; height: 70px; min-width: 70px; }
+            .inner-slider { height: 280px; }
+            .filter-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="archive-wrapper">
+    <div class="archive-header">
+        <h2>Resource Portal</h2>
+    </div>
+
+    <button class="filter-toggle" onclick="toggleFilters()">
+        <span>🔍 Search & Filter Resources</span>
+        <span id="filterArrow">▼</span>
+    </button>
+    <div class="filter-content" id="filterArea">
+        <div class="filter-grid">
+            <div><label>Search</label><input type="text" id="searchBox" placeholder="Title, Description..." oninput="applyFilters()"></div>
+            <div><label>Academic Year</label><select id="filterYear" onchange="applyFilters()"><option value="">All Years</option></select></div>
+            <div><label>Category</label><select id="filterCat" onchange="applyFilters()"><option value="">All Categories</option></select></div>
+            <div><label>Sort Order</label>
+                <select id="sortOrder" onchange="applyFilters()">
+                    <option value="new">Latest First</option>
+                    <option value="old">Oldest First</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-bar" id="statsBar">Scanning Resource Library...</div>
+
+    <div class="archive-content" id="archiveBody">
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+</div>
+
+<script>
+const resSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3Z3advl1GATBHih2oijmHQec-dtTUM1QtYX4mhsyTXWMymV2_zb74Dfusy_P6Ga4YeGGAeG5num2n/pub?gid=0&single=true&output=csv";
+const calSheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS3Z3advl1GATBHih2oijmHQec-dtTUM1QtYX4mhsyTXWMymV2_zb74Dfusy_P6Ga4YeGGAeG5num2n/pub?gid=1198422437&single=true&output=csv";
+
+let allRecords = [];
+let currentWeekID = "";
+
+function toggleFilters() {
+    const area = document.getElementById("filterArea");
+    area.classList.toggle("active");
+    document.getElementById("filterArrow").innerText = area.classList.contains("active") ? "▲" : "▼";
+}
+
+function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/).filter(line => line.trim() !== "");
+    const headers = lines[0].split(',').map(h => h.trim());
+    return lines.slice(1).map(line => {
+        const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+        let obj = {};
+        headers.forEach((h, i) => obj[h] = values[i] ? values[i].replace(/^"|"$/g, "").trim() : "");
+        return obj;
+    });
+}
+
+function getDriveImg(url, size = 'w800') {
+    if(!url) return "";
+    const match = url.match(/[-\w]{25,}/);
+    return match ? `https://drive.google.com/thumbnail?id=${match[0]}&sz=${size}` : url;
+}
+
+async function init() {
+    try {
+        const [resRes, resCal] = await Promise.all([fetch(resSheetURL), fetch(calSheetURL)]);
+        const resources = parseCSV(await resRes.text());
+        const calendars = parseCSV(await resCal.text());
+
+        const today = new Date();
+        
+        // Process Resources
+        allRecords = resources.map(r => {
+            const yCode = r["Resource ID"].substring(1,5);
+            const wNum = parseInt(r["Resource ID"].split("/")[1]);
+            const cal = calendars.find(c => c["Year Code"] === yCode);
+            
+            let releaseDate = null;
+            if(cal) {
+                const [d,m,y] = cal["Start Date"].split("-");
+                const start = new Date(`${y}-${m}-${d}`);
+                releaseDate = new Date(start.getTime() + (wNum - 1) * 7 * 24 * 60 * 60 * 1000);
+            }
+
+            return {
+                ...r,
+                releaseDate,
+                yearLabel: `20${yCode.substring(0,2)}–20${yCode.substring(2,4)}`,
+                week: wNum
+            };
+        }).filter(r => r.releaseDate && r.releaseDate <= today); // HIDE FUTURE RESOURCES
+
+        // Dropdowns
+        const years = [...new Set(allRecords.map(r => r.yearLabel))].sort().reverse();
+        const cats = [...new Set(allRecords.map(r => r["Category"]))].sort();
+        years.forEach(y => document.getElementById("filterYear").innerHTML += `<option value="${y}">${y}</option>`);
+        cats.forEach(c => document.getElementById("filterCat").innerHTML += `<option value="${c}">${c}</option>`);
+
+        applyFilters();
+    } catch(e) { console.error(e); }
+}
+
+function applyFilters() {
+    const q = document.getElementById("searchBox").value.toLowerCase();
+    const yr = document.getElementById("filterYear").value;
+    const cat = document.getElementById("filterCat").value;
+    const sort = document.getElementById("sortOrder").value;
+
+    let filtered = allRecords.filter(r => {
+        const matchQ = (r["Title"] + r["Description"]).toLowerCase().includes(q);
+        const matchYr = !yr || r.yearLabel === yr;
+        const matchCat = !cat || r["Category"] === cat;
+        return matchQ && matchYr && matchCat;
+    });
+
+    filtered.sort((a, b) => {
+        return sort === "new" ? b.releaseDate - a.releaseDate : a.releaseDate - b.releaseDate;
+    });
+
+    render(filtered);
+}
+
+function render(data) {
+    const body = document.getElementById("archiveBody");
+    body.innerHTML = "";
+    document.getElementById("statsBar").innerText = `Available Resources: ${data.length}`;
+
+    data.forEach((r, cardIdx) => {
+        const imgLinks = (r["Image URL"] || "").split("|").map(s => s.trim());
+        const thumb = getDriveImg(imgLinks[0], 'w200');
+
+        const card = document.createElement("div");
+        card.className = "resource-item";
+        card.innerHTML = `
+            <div class="item-layout">
+                <div class="thumb-box" onclick="toggleExpand(${cardIdx})">
+                    <img src="${thumb}" onerror="this.src='https://via.placeholder.com/100?text=ZEN'">
+                </div>
+                <div class="details">
+                    <div class="item-tag">Week ${r.week} | ${r.yearLabel}</div>
+                    <div class="item-title" onclick="toggleExpand(${cardIdx})">${r["Title"]}</div>
+                    <div class="item-cat">${r["Category"]}</div>
+                    <div class="item-meta">🗓️ Released: ${r.releaseDate.toLocaleDateString('en-GB')}</div>
+                    <div class="item-desc">${r["Description"]}</div>
+                    <a href="${r["Link"]}" target="_blank" class="btn-link">Open Resource ↗</a>
+                </div>
+            </div>
+            <div class="expanded-container" id="expand-${cardIdx}">
+                <div class="inner-slider">
+                    ${imgLinks.map((link, i) => `
+                        <img src="${getDriveImg(link, 'w1000')}" class="${i===0?'active':''}">
+                    `).join("")}
+                    ${imgLinks.length > 1 ? `
+                        <button class="inner-nav btn-prev" onclick="shiftImg(${cardIdx}, -1)">❮</button>
+                        <button class="inner-nav btn-next" onclick="shiftImg(${cardIdx}, 1)">❯</button>
+                    ` : ''}
+                </div>
+                <div style="text-align:center; padding:10px; color:white; font-size:10px; cursor:pointer;" onclick="toggleExpand(${cardIdx})">▲ COLLAPSE</div>
+            </div>
+        `;
+        body.appendChild(card);
+    });
+}
+
+function toggleExpand(idx) {
+    document.getElementById(`expand-${idx}`).classList.toggle("open");
+}
+
+window.shiftImg = function(cardIdx, dir) {
+    const container = document.getElementById(`expand-${cardIdx}`);
+    const imgs = container.querySelectorAll('.inner-slider img');
+    let activeIdx = Array.from(imgs).findIndex(img => img.classList.contains('active'));
+    imgs[activeIdx].classList.remove('active');
+    let nextIdx = (activeIdx + dir + imgs.length) % imgs.length;
+    imgs[nextIdx].classList.add('active');
+};
+
+init();
+</script>
+</body>
+</html>

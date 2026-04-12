@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZEN - DNA | Student Spotlight</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root { --zen-blue: #23365D; --zen-maroon: #6C232E; --zen-gold: #D4A64A; --zen-light: #F4F6F9; }
+
+body { font-family: 'Poppins', sans-serif; background: transparent; margin: 0; padding: 0; }
+
+.container { width: 100%; max-width: 350px; margin: 0 auto; text-align: center; padding-top: 5px; }
+
+h2 { font-family: 'Playfair Display', serif; color: var(--zen-blue); margin: 0 0 15px 0; font-size: 1.6rem; }
+h2::after { content: ''; display: block; width: 40px; height: 3px; background: var(--zen-maroon); margin: 8px auto; }
+
+/* SLIDER */
+.slider { overflow: hidden; position: relative; border-radius: 20px; background: #fff; box-shadow: 0 10px 25px rgba(35,54,93,0.12); cursor: grab; }
+.track { display: flex; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+.card { min-width: 100%; text-align: left; }
+
+/* IMAGE BOX - SMART FIT */
+.img-box { height: 210px; position: relative; background: #1a1a1a; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+
+.img-box .bg-blur { position: absolute; width: 100%; height: 100%; object-fit: cover; filter: blur(12px); opacity: 0.4; z-index: 1; }
+
+.img-box img.main-img { 
+    max-width: 100%; max-height: 100%; 
+    object-fit: contain; 
+    position: relative; z-index: 2; display: none;
+}
+.img-box img.main-img.active { display: block; }
+
+/* INNER NAV ARROWS */
+.nav-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255,255,255,0.25); color: white; border: none;
+    width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+    z-index: 10; display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(5px); transition: 0.3s; font-weight: bold;
+}
+.nav-arrow:hover { background: var(--zen-gold); color: #fff; }
+.arrow-left { left: 10px; }
+.arrow-right { right: 10px; }
+
+.type-badge { position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,0.9); color: var(--zen-blue); padding: 4px 10px; font-size: 10px; font-weight: 600; border-radius: 50px; text-transform: uppercase; z-index: 5; }
+.new-badge { position: absolute; top: 12px; right: 12px; background: var(--zen-gold); color: #fff; padding: 4px 8px; font-size: 10px; font-weight: 700; border-radius: 4px; z-index: 5; }
+
+/* CONTENT */
+.content { padding: 18px; border-top: 4px solid var(--zen-maroon); }
+.title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: bold; color: var(--zen-blue); margin-bottom: 6px; }
+.students { font-size: 13px; font-weight: 600; color: var(--zen-maroon); margin-bottom: 2px; }
+
+/* REVERTED TO OLD STYLE */
+.dept { font-size: 11px; color: gray; margin-bottom: 8px; }
+.desc { font-size: 12px; color: #444; margin-top: 5px; line-height: 1.5; }
+.date { font-size: 11px; margin-top: 10px; color: #666; font-weight: normal; }
+
+/* LOADING SKELETON */
+#loading-box { height: 380px; background: #eee; border-radius: 20px; position: relative; overflow: hidden; }
+#loading-box::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: shimmer 1.5s infinite; }
+@keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+.btn-wrap { margin-top: 20px; }
+.btn-wrap a { background: var(--zen-blue); color: #fff; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; transition: 0.3s; display: inline-block; }
+.btn-wrap a:hover { background: var(--zen-gold); }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Student Spotlight</h2>
+  
+  <div id="loading-box"></div>
+
+  <div class="slider" id="slider" style="display:none;">
+    <div class="track" id="track"></div>
+  </div>
+
+  <div class="btn-wrap">
+    <a href="https://azbtweb.wixsite.com/zen-dna/student-spotlight" target="_blank">Student Spotlights Portal →</a>
+  </div>
+</div>
+
+<script>
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTiNWmXmyfLUQQfEAtz95qyGPWVkDrtKStpR5wAJXeCqvOQx8etHh8SQ6VBBGYoZS4dAl4cZVQUnw7C/pub?output=csv";
+
+function parseCSV(text) {
+  const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
+  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+  return lines.slice(1).map(line => {
+    const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+    let obj = {};
+    headers.forEach((h, i) => obj[h] = values[i] ? values[i].replace(/^"|"$/g, '').trim() : "");
+    return obj;
+  });
+}
+
+function parseDate(d) {
+  if(!d) return null;
+  const p = d.split("-");
+  return new Date(p[2], p[1]-1, p[0]);
+}
+
+function getImageUrl(input) {
+  if(!input) return "";
+  const match = input.match(/[-\w]{25,}/);
+  return match ? `https://drive.google.com/thumbnail?id=${match[0]}&sz=w1000` : input;
+}
+
+fetch(CSV_URL).then(res => res.text()).then(csvText => {
+  let data = parseCSV(csvText);
+  const track = document.getElementById("track");
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  // Sorting Latest First
+  let activeItems = data.filter(row => {
+    const from = parseDate(row.from_date);
+    const to = parseDate(row.to_date);
+    return from && to && today >= from && today <= to;
+  }).sort((a, b) => parseDate(b.from_date) - parseDate(a.from_date));
+
+  document.getElementById("loading-box").style.display = "none";
+  document.getElementById("slider").style.display = "block";
+
+  if (activeItems.length === 0)   if (activeItems.length === 0) {
+    track.innerHTML = `
+        <div class="no-achievements" style="padding: 60px 30px; color: #888; font-size: 13.5px; font-weight: 400; background: #fff; display: flex; flex-direction: column; align-items: center; gap: 15px; text-align: center; border-radius: 20px;">
+            <div class="no-events-icon" style="font-size: 32px; opacity: 0.4;">🏆</div>
+            <div style="font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--zen-blue); font-weight: bold;">No Active Spotlights</div>
+            <div style="line-height: 1.6; max-width: 280px; margin: 0 auto;">
+                There are currently no active student achievements to display. 
+                Please check back soon for the latest updates or visit our 
+                <strong>Achievement Portal</strong> to explore the department's historical milestones.
+            </div>
+        </div>`;
+    return;
+  }
+    
+
+  activeItems.forEach((item, cardIdx) => {
+    const imgList = (item.images_links || item.image_links || "").split("|");
+    const images = imgList.map(url => getImageUrl(url.trim()));
+    const isNew = (today - parseDate(item.from_date)) / 86400000 <= 3;
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="img-box">
+        ${images.map((img, i) => `
+            <img src="${img}" class="bg-blur" style="display:${i===0?'block':'none'}">
+            <img src="${img}" class="main-img ${i===0?'active':''}" onerror="this.src='https://via.placeholder.com/350x210?text=Image+Unavailable'">
+        `).join("")}
+        ${images.length > 1 ? `
+            <button class="nav-arrow arrow-left" onclick="changeInnerImg(${cardIdx}, -1)">❮</button>
+            <button class="nav-arrow arrow-right" onclick="changeInnerImg(${cardIdx}, 1)">❯</button>
+        ` : ''}
+        <div class="type-badge">${item.type || 'Update'}</div>
+        ${isNew ? `<div class="new-badge">NEW</div>` : ""}
+      </div>
+      <div class="content">
+        <div class="title">${item.title}</div>
+        <div class="students">${item.students_names || item.student_names || ''}</div>
+        <div class="dept">${item.dept_numbers || ''}</div>
+        <div class="desc">${item.description || ''}</div>
+        <div class="date">🗓️ ${item.from_date}</div>
+      </div>
+    `;
+    track.appendChild(card);
+  });
+
+  initMainSlider(activeItems.length);
+});
+
+// INNER IMAGE SWAP
+window.changeInnerImg = function(cardIdx, dir) {
+    const card = document.querySelectorAll('.card')[cardIdx];
+    const imgs = card.querySelectorAll('.main-img');
+    const blurs = card.querySelectorAll('.bg-blur');
+    let current = Array.from(imgs).findIndex(img => img.classList.contains('active'));
+    
+    imgs[current].classList.remove('active');
+    blurs[current].style.display = 'none';
+    
+    let next = (current + dir + imgs.length) % imgs.length;
+    imgs[next].classList.add('active');
+    blurs[next].style.display = 'block';
+};
+
+// MAIN CARD SLIDER
+function initMainSlider(count) {
+  const slider = document.getElementById("slider"), track = document.getElementById("track");
+  let startX, curIdx = 0, isDown = false;
+
+  const move = (idx) => { 
+    curIdx = (idx + count) % count;
+    track.style.transform = `translateX(-${curIdx * 100}%)`;
+  };
+
+  // Set to 10 seconds (10000ms)
+  let auto = setInterval(() => move(curIdx + 1), 10000);
+
+  slider.onmousedown = slider.ontouchstart = (e) => {
+    clearInterval(auto); isDown = true;
+    startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+  };
+  
+  window.onmouseup = window.ontouchend = (e) => {
+    if(!isDown) return; isDown = false;
+    let endX = e.type.includes('touch') ? e.changedTouches[0].clientX : e.clientX;
+    if(startX - endX > 50) move(curIdx + 1);
+    else if(startX - endX < -50) move(curIdx - 1);
+    auto = setInterval(() => move(curIdx + 1), 10000);
+  };
+}
+</script>
+</body>
+</html>

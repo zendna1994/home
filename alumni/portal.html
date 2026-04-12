@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZEN-DNA | Alumni Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --zen-blue: #23365D; --zen-maroon: #6C232E; --zen-gold: #D4A64A; --zen-white: #FFFFFF; }
+        
+        body { font-family: 'Poppins', sans-serif; background: #F4F6F9; margin: 0; padding: 10px; }
+
+        .archive-wrapper {
+            width: 100%; max-width: 1100px; margin: 0 auto; background: var(--zen-white);
+            border-radius: 16px; box-shadow: 0 10px 40px rgba(35,54,93,0.12);
+            display: flex; flex-direction: column; height: 95vh; overflow: hidden;
+        }
+
+        /* HEADER */
+        .archive-header { padding: 20px; border-bottom: 4px solid var(--zen-maroon); background: #fff; }
+        h2 { font-family: 'Playfair Display', serif; color: var(--zen-blue); margin: 0; font-size: 1.6rem; text-align: center; }
+
+        /* FILTERS */
+        .filter-toggle {
+            background: #f1f3f6; color: var(--zen-blue); border: none; width: 100%;
+            padding: 12px 20px; font-weight: 600; cursor: pointer; text-align: left;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .filter-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; background: #fbfbfb; }
+        .filter-content.active { max-height: 500px; border-bottom: 2px solid #eee; }
+
+        .filter-grid { 
+            display: grid; padding: 20px; gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); 
+        }
+
+        input, select { padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px; width: 100%; box-sizing: border-box; }
+        label { font-size: 11px; font-weight: 600; color: var(--zen-blue); margin-bottom: 4px; display: block; }
+
+        /* CONTENT AREA */
+        .stats-bar { padding: 8px 20px; font-size: 11px; background: #f1f3f6; color: #666; font-weight: 600; text-align: center; }
+        .archive-content { flex: 1; overflow-y: auto; padding: 15px; background: #fafafa; }
+
+        /* CARD DESIGN */
+        .alumni-item {
+            background: var(--zen-white); margin-bottom: 15px; border-radius: 14px;
+            padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: 0.3s;
+            border-left: 0px solid var(--zen-gold);
+        }
+        .alumni-item:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); border-left: 5px solid var(--zen-gold); }
+
+        .item-layout { display: flex; gap: 15px; align-items: flex-start; }
+
+        .thumb-box { 
+            width: 90px; height: 90px; min-width: 90px; border-radius: 10px; 
+            overflow: hidden; cursor: zoom-in; background: #eee; border: 1px solid #eee;
+        }
+        .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
+
+        .details { flex: 1; }
+        .item-tag { font-size: 9px; font-weight: 700; color: var(--zen-gold); text-transform: uppercase; letter-spacing: 0.5px; }
+        .item-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--zen-blue); margin: 2px 0; font-weight: bold; }
+        .item-role { font-size: 12px; font-weight: 600; color: var(--zen-maroon); margin-bottom: 2px; }
+        .item-meta { font-size: 10px; color: #777; margin-top: 2px; }
+        .item-desc { font-size: 11px; color: #444; margin-top: 8px; line-height: 1.5; }
+        
+        .contact-links { margin-top: 10px; display: flex; gap: 10px; }
+        .contact-links a { font-size: 11px; text-decoration: none; color: var(--zen-blue); font-weight: 600; }
+
+        /* EXPANDABLE SLIDER */
+        .expanded-container { 
+            max-height: 0; overflow: hidden; transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
+            margin-top: 15px; background: #111; border-radius: 12px; position: relative;
+        }
+        .expanded-container.open { max-height: 550px; padding: 10px; border: 2px solid var(--zen-gold); }
+
+        .inner-slider { position: relative; width: 100%; height: 350px; display: flex; align-items: center; justify-content: center; }
+        .inner-slider img { max-width: 100%; max-height: 100%; object-fit: contain; display: none; }
+        .inner-slider img.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .inner-nav { 
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(255,255,255,0.2); color: white; border: none;
+            width: 35px; height: 35px; border-radius: 50%; cursor: pointer;
+            backdrop-filter: blur(5px); font-size: 16px; z-index: 10;
+        }
+        .inner-nav:hover { background: var(--zen-gold); }
+        .btn-prev { left: 10px; }
+        .btn-next { right: 10px; }
+
+        /* SKELETON */
+        .skeleton { height: 110px; background: #eee; border-radius: 14px; margin-bottom: 15px; position: relative; overflow: hidden; }
+        .skeleton::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent); animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+        @media (max-width: 600px) {
+            .thumb-box { width: 75px; height: 75px; min-width: 75px; }
+            .filter-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="archive-wrapper">
+    <div class="archive-header">
+        <h2>Alumni Portal</h2>
+    </div>
+
+    <button class="filter-toggle" onclick="toggleFilters()">
+        <span>🔍 Search & Filter Directory</span>
+        <span id="filterArrow">▼</span>
+    </button>
+    <div class="filter-content" id="filterArea">
+        <div class="filter-grid">
+            <div><label>Search Alumni</label><input type="text" id="searchBox" placeholder="Name, Role, Company..." oninput="applyFilters()"></div>
+            <div><label>Batch (Year)</label><select id="filterYear" onchange="applyFilters()"><option value="">All Batches</option></select></div>
+            <div><label>Degree</label><select id="filterDegree" onchange="applyFilters()"><option value="">All Degrees</option></select></div>
+            <div><label>Sort By</label>
+                <select id="sortOrder" onchange="applyFilters()">
+                    <option value="new">Latest Batch</option>
+                    <option value="old">Old Batch</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="stats-bar" id="statsBar">Connecting with Alumni Network...</div>
+
+    <div class="archive-content" id="archiveBody">
+        <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+</div>
+
+<script>
+const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSHU-kKOA2WoCCeSAVZJ_GVoziAyKETXE59glo1GrOy2_hYLHaV_fQ4CWm0_SFWLZ3gt3e2TnkQX1Ad/pub?output=csv";
+let allRecords = [];
+
+function toggleFilters() {
+    const area = document.getElementById("filterArea");
+    area.classList.toggle("active");
+    document.getElementById("filterArrow").innerText = area.classList.contains("active") ? "▲" : "▼";
+}
+
+function parseCSV(text) {
+    const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
+    const headers = lines[0].split(',').map(h => h.trim());
+    return lines.slice(1).map(line => {
+        const values = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+        let obj = {};
+        headers.forEach((h, i) => obj[h] = values[i] ? values[i].replace(/^"|"$/g, '').trim() : "");
+        
+        // Extract Academic Year Label
+        obj.year_label = obj.Year ? `Class of ${obj.Year}` : '';
+        return obj;
+    });
+}
+
+function getImg(link, size = 'w400') {
+    if(!link) return "";
+    const match = link.match(/[-\w]{25,}/);
+    return match ? `https://drive.google.com/thumbnail?id=${match[0]}&sz=${size}` : link;
+}
+
+fetch(CSV_URL).then(res => res.text()).then(csv => {
+    allRecords = parseCSV(csv);
+    
+    // Populate Dropdowns
+    const years = [...new Set(allRecords.map(r => r.year_label))].filter(Boolean).sort().reverse();
+    const degrees = [...new Set(allRecords.map(r => r.Degree))].filter(Boolean).sort();
+
+    years.forEach(y => document.getElementById("filterYear").innerHTML += `<option value="${y}">${y}</option>`);
+    degrees.forEach(d => document.getElementById("filterDegree").innerHTML += `<option value="${d}">${d}</option>`);
+
+    applyFilters();
+});
+
+function applyFilters() {
+    const q = document.getElementById("searchBox").value.toLowerCase();
+    const yr = document.getElementById("filterYear").value;
+    const dg = document.getElementById("filterDegree").value;
+    const sort = document.getElementById("sortOrder").value;
+
+    let filtered = allRecords.filter(r => {
+        const searchPool = `${r.Name} ${r.Current_Position} ${r.Organization} ${r.Description}`.toLowerCase();
+        const matchQ = searchPool.includes(q);
+        const matchYr = !yr || r.year_label === yr;
+        const matchDg = !dg || r.Degree === dg;
+        return matchQ && matchYr && matchDg;
+    });
+
+    filtered.sort((a, b) => {
+        const valA = parseInt(a.Year) || 0;
+        const valB = parseInt(b.Year) || 0;
+        return sort === "new" ? valB - valA : valA - valB;
+    });
+
+    render(filtered);
+}
+
+function render(data) {
+    const body = document.getElementById("archiveBody");
+    body.innerHTML = "";
+    document.getElementById("statsBar").innerText = `Displaying: ${data.length} Alumni Profile(s)`;
+
+    data.forEach((r, cardIdx) => {
+        const imgLinks = (r.Image_URL || "").split("|").map(s => s.trim());
+        const thumb = getImg(imgLinks[0], 'w200');
+
+        const card = document.createElement("div");
+        card.className = "alumni-item";
+        card.innerHTML = `
+            <div class="item-layout">
+                <div class="thumb-box" onclick="toggleExpand(${cardIdx})">
+                    <img src="${thumb}" onerror="this.src='https://via.placeholder.com/90?text=ZEN'">
+                </div>
+                <div class="details">
+                    <div class="item-tag">${r.Highlight_Tag || 'Alumni'} | ${r.year_label}</div>
+                    <div class="item-title" onclick="toggleExpand(${cardIdx})">${r.Name}</div>
+                    <div class="item-role">${r.Current_Position} @ ${r.Organization}</div>
+                    <div class="item-meta">🎓 ${r.Degree} | 🪪 ${r.Register_No}</div>
+                    <div class="item-desc">${r.Description || ''}</div>
+                    <div class="contact-links">
+                        ${r.LinkedIn ? `<a href="${r.LinkedIn}" target="_blank">🔗 LinkedIn</a>` : ''}
+                        ${r.Email ? `<a href="mailto:${r.Email}">✉️ Contact</a>` : ''}
+                    </div>
+                </div>
+            </div>
+            <div class="expanded-container" id="expand(${cardIdx})">
+                <div class="inner-slider">
+                    ${imgLinks.map((link, i) => `
+                        <img src="${getImg(link, 'w1000')}" class="${i===0?'active':''}">
+                    `).join("")}
+                    ${imgLinks.length > 1 ? `
+                        <button class="inner-nav btn-prev" onclick="shiftImg(${cardIdx}, -1)">❮</button>
+                        <button class="inner-nav btn-next" onclick="shiftImg(${cardIdx}, 1)">❯</button>
+                    ` : ''}
+                </div>
+                <div style="text-align:center; padding:10px; color:white; font-size:10px; cursor:pointer;" onclick="toggleExpand(${cardIdx})">▲ CLOSE VIEW</div>
+            </div>
+        `;
+        body.appendChild(card);
+    });
+}
+
+function toggleExpand(idx) {
+    const el = document.getElementById(`expand(${idx})`);
+    if (el) el.classList.toggle("open");
+}
+
+window.shiftImg = function(cardIdx, dir) {
+    const container = document.getElementById(`expand(${cardIdx})`);
+    if (!container) return;
+    const imgs = container.querySelectorAll('.inner-slider img');
+    let activeIdx = Array.from(imgs).findIndex(img => img.classList.contains('active'));
+    imgs[activeIdx].classList.remove('active');
+    let nextIdx = (activeIdx + dir + imgs.length) % imgs.length;
+    imgs[nextIdx].classList.add('active');
+};
+</script>
+</body>
+</html>

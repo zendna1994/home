@@ -16,7 +16,6 @@ body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--light); 
 .ay-text { font-size: 0.7rem; font-weight: 400; color: #777; margin: 0; }
 .header-line { width: 50px; height: 2.5px; background: var(--maroon); margin: 4px auto 6px auto; }
 
-/* Season-Style Font for ZALC Name */
 .zalc-name-title { 
     font-family: 'Playfair Display', serif; 
     font-size: 1.8rem; 
@@ -29,18 +28,43 @@ body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--light); 
 }
 
 /* --- COMPACT SLIDER --- */
-.slider-wrap { position: relative; background: #fff; border-radius: 12px; box-shadow: 0 5px 15px rgba(35,54,93,0.1); overflow: hidden; border-top: 3px solid var(--maroon); }
+.slider-wrap { position: relative; background: #fff; border-radius: 12px; box-shadow: 0 5px 15px rgba(35,54,93,0.1); overflow: hidden; border-top: 3px solid var(--maroon); touch-action: pan-y; }
 .slider { display: flex; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
 .slide { min-width: 100%; padding: 25px 15px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; position: relative; }
 
+/* Desktop Navigation Buttons */
+.nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    color: var(--blue);
+    cursor: pointer;
+    z-index: 10;
+    display: none; /* Hidden on mobile */
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+.nav-btn:hover { background: var(--maroon); color: #fff; }
+.prev { left: 5px; }
+.next { right: 5px; }
+
+@media (min-width: 768px) {
+    .nav-btn { display: flex; }
+}
+
 .corner-logo { position: absolute; top: 10px; right: 10px; width: 35px; height: 35px; background-size: contain; background-repeat: no-repeat; background-position: center; z-index: 5; opacity: 0.9; }
 
-/* Frame Size Reduced */
 .frame { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--gold); position: relative; margin-bottom: 12px; background: #fff; }
 .frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .frame::after { content: '\f1b0'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; bottom: -2px; right: 5px; font-size: 1rem; background: #fff; color: var(--gold); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--gold); }
 
-/* Compact Text Details */
 .name { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; margin: 0; letter-spacing: 0.5px; }
 .class-info { font-size: 0.8rem; font-weight: 600; color: var(--maroon); margin-top: 2px; text-transform: uppercase; }
 .dept-info { font-size: 0.7rem; font-weight: 400; color: #666; margin-bottom: 10px; }
@@ -62,7 +86,9 @@ body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--light); 
         <div class="header-line"></div>
         <div id="zalc-title" class="zalc-name-title"></div>
         <div class="slider-wrap" id="sw">
+            <button class="nav-btn prev" onclick="moveSlide(-1)"><i class="fas fa-chevron-left"></i></button>
             <div class="slider" id="sd"></div>
+            <button class="nav-btn next" onclick="moveSlide(1)"><i class="fas fa-chevron-right"></i></button>
         </div>
         <div class="btn-portal"><a href="https://azbtweb.wixsite.com/zen-dna/zalc-members" target="_blank">ZALC Members Portal →</a></div>
     </div>
@@ -73,7 +99,7 @@ body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--light); 
 const M_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVJQvFnPF1VyjviyayOG3_amxou7SLiM2KniqdxOAGy-GTySJtBgxWvlevoKa8zqd3UwT7dACQYm9I/pub?gid=0&single=true&output=csv";
 const I_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVJQvFnPF1VyjviyayOG3_amxou7SLiM2KniqdxOAGy-GTySJtBgxWvlevoKa8zqd3UwT7dACQYm9I/pub?gid=635742688&single=true&output=csv";
 
-let cur = 0, ttl = 0, logoUrl = "";
+let cur = 0, ttl = 0, logoUrl = "", slideInterval;
 
 const gU = u => {
     if(!u || u.trim() === "") return "";
@@ -82,6 +108,34 @@ const gU = u => {
     const m = u.match(/[-\w]{25,}/);
     return m ? `https://drive.google.com/thumbnail?id=${m[0]}&sz=w600` : u;
 };
+
+function updateSlide() {
+    const s = document.getElementById('sd');
+    s.style.transform = `translateX(-${cur * 100}%)`;
+}
+
+function moveSlide(dir) {
+    cur = (cur + dir + ttl) % ttl;
+    updateSlide();
+    resetTimer();
+}
+
+function resetTimer() {
+    clearInterval(slideInterval);
+    slideInterval = setInterval(() => { moveSlide(1); }, 5000);
+}
+
+// Mobile Swipe Logic
+function initTouch() {
+    const sw = document.getElementById('sw');
+    let startX = 0;
+    sw.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive: true});
+    sw.addEventListener('touchend', e => {
+        let endX = e.changedTouches[0].clientX;
+        if (startX - endX > 50) moveSlide(1);
+        else if (endX - startX > 50) moveSlide(-1);
+    }, {passive: true});
+}
 
 async function init() {
     try {
@@ -113,7 +167,9 @@ async function init() {
 
         document.getElementById('loading').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
-        setInterval(() => { cur = (cur + 1) % ttl; document.getElementById('sd').style.transform = `translateX(-${cur * 100}%)`; }, 5000);
+        
+        initTouch();
+        resetTimer();
     } catch(e) { console.error(e); }
 }
 init();

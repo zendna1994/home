@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>ZEN-DNA | ZALC Member Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root { --blue: #23365D; --maroon: #6C232E; --gold: #D4A64A; --light: #F4F6F9; }
+body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--light); color: var(--blue); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding-top: 10px; }
+.container { width: 100%; max-width: 350px; padding: 5px; text-align: center; }
+
+/* --- COMPACT PROFESSIONAL HEADER --- */
+.main-heading { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: bold; margin: 0; white-space: nowrap; letter-spacing: 0.5px; }
+.ay-text { font-size: 0.7rem; font-weight: 400; color: #777; margin: 0; }
+.header-line { width: 50px; height: 2.5px; background: var(--maroon); margin: 4px auto 6px auto; }
+
+/* Season-Style Font for ZALC Name */
+.zalc-name-title { 
+    font-family: 'Playfair Display', serif; 
+    font-size: 1.8rem; 
+    font-weight: 400;
+    color: var(--blue); 
+    margin: 0 0 10px 0; 
+    line-height: 1; 
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* --- COMPACT SLIDER --- */
+.slider-wrap { position: relative; background: #fff; border-radius: 12px; box-shadow: 0 5px 15px rgba(35,54,93,0.1); overflow: hidden; border-top: 3px solid var(--maroon); }
+.slider { display: flex; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+.slide { min-width: 100%; padding: 25px 15px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; position: relative; }
+
+.corner-logo { position: absolute; top: 10px; right: 10px; width: 35px; height: 35px; background-size: contain; background-repeat: no-repeat; background-position: center; z-index: 5; opacity: 0.9; }
+
+/* Frame Size Reduced */
+.frame { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--gold); position: relative; margin-bottom: 12px; background: #fff; }
+.frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.frame::after { content: '\f1b0'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; bottom: -2px; right: 5px; font-size: 1rem; background: #fff; color: var(--gold); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--gold); }
+
+/* Compact Text Details */
+.name { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; margin: 0; letter-spacing: 0.5px; }
+.class-info { font-size: 0.8rem; font-weight: 600; color: var(--maroon); margin-top: 2px; text-transform: uppercase; }
+.dept-info { font-size: 0.7rem; font-weight: 400; color: #666; margin-bottom: 10px; }
+.pos { background: var(--blue); color: #fff; padding: 4px 14px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; }
+
+.btn-portal { margin-top: 15px; }
+.btn-portal a { background: var(--blue); color: #fff; text-decoration: none; padding: 8px 20px; border-radius: 6px; font-weight: 400; font-size: 11px; letter-spacing: 1px; }
+
+.skeleton { width: 100%; height: 250px; background: #eee; border-radius: 12px; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+</style>
+</head>
+<body>
+<div class="container" id="app">
+    <div id="loading"><div class="skeleton"></div></div>
+    <div id="main-content" style="display:none">
+        <div class="main-heading">Zoologist Association of Loyola College</div>
+        <div id="ay" class="ay-text"></div>
+        <div class="header-line"></div>
+        <div id="zalc-title" class="zalc-name-title"></div>
+        <div class="slider-wrap" id="sw">
+            <div class="slider" id="sd"></div>
+        </div>
+        <div class="btn-portal"><a href="https://azbtweb.wixsite.com/zen-dna/zalc-members" target="_blank">ZALC Members Portal →</a></div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+<script>
+const M_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVJQvFnPF1VyjviyayOG3_amxou7SLiM2KniqdxOAGy-GTySJtBgxWvlevoKa8zqd3UwT7dACQYm9I/pub?gid=0&single=true&output=csv";
+const I_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVJQvFnPF1VyjviyayOG3_amxou7SLiM2KniqdxOAGy-GTySJtBgxWvlevoKa8zqd3UwT7dACQYm9I/pub?gid=635742688&single=true&output=csv";
+
+let cur = 0, ttl = 0, logoUrl = "";
+
+const gU = u => {
+    if(!u || u.trim() === "") return "";
+    u = u.trim();
+    if(u.includes('static.wixstatic.com')) return u;
+    const m = u.match(/[-\w]{25,}/);
+    return m ? `https://drive.google.com/thumbnail?id=${m[0]}&sz=w600` : u;
+};
+
+async function init() {
+    try {
+        const [iR, mR] = await Promise.all([fetch(I_CSV), fetch(M_CSV)]);
+        const iD = (Papa.parse(await iR.text(), {header:true})).data[0];
+        const mD = (Papa.parse(await mR.text(), {header:true})).data;
+
+        document.getElementById('ay').innerText = iD["Academic Year"] || "";
+        document.getElementById('zalc-title').innerText = iD["ZALC Name"] || "";
+        logoUrl = gU(iD["ZALC Logo"]);
+        
+        const s = document.getElementById('sd');
+        const vM = mD.filter(m => m.Name && m.Name !== "");
+        ttl = vM.length;
+
+        vM.forEach(m => {
+            const d = document.createElement('div');
+            d.className = 'slide';
+            d.innerHTML = `
+                <div class="corner-logo" style="background-image: url('${logoUrl}')"></div>
+                <div class="frame"><img src="${gU(m["Photo URL"])}" onerror="this.src='https://via.placeholder.com/110?text=Member'"></div>
+                <div class="name">${m.Name || ""}</div>
+                <div class="class-info">${m.Class || ""}</div>
+                <div class="dept-info">${m["Dept No"] ? `[ ${m["Dept No"]} ]` : ""}</div>
+                <div class="pos">${m.Position || ""}</div>
+            `;
+            s.appendChild(d);
+        });
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        setInterval(() => { cur = (cur + 1) % ttl; document.getElementById('sd').style.transform = `translateX(-${cur * 100}%)`; }, 5000);
+    } catch(e) { console.error(e); }
+}
+init();
+</script>
+</body>
+</html>

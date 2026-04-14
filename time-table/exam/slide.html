@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ZEN-DNA | Upcoming Exams</title>
+    <title>ZEN - DNA | Upcoming Exams</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -221,8 +221,8 @@ async function init() {
       const diff = Math.round((e.dateObj - now) / (1000 * 60 * 60 * 24));
       
       let status = "";
-      if (diff === 0) status = "🔥 TODAY";
-      else if (diff === 1) status = "⏳ TOMORROW";
+      if (diff === 0) status = "✨ TODAY";
+      else if (diff === 1) status = " ⏳ TOMORROW";
       else status = `IN ${diff} DAYS`;
 
       return `
@@ -242,7 +242,7 @@ async function init() {
                 <div class="res-title">${e.subject}</div>
                 
                 <div class="detail-row">
-                    <span><strong>Code:</strong> ${e.code}</span>
+                    <span><strong>Subject Code:</strong> ${e.code}</span>
                 </div>
                 
                 <div class="watermark-text">ZEN-DNA</div>

@@ -9,12 +9,32 @@
 <style>
     :root { --zen-blue: #23365D; --zen-maroon: #6C232E; --zen-gold: #D4A64A; --zen-white: #FFFFFF; --zen-bg: #F4F6F9; }
     
+    /* Security: Prevent text selection and long-press on mobile */
+    * {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+    }
+
     body { font-family: 'Poppins', sans-serif; background: var(--zen-bg); margin: 0; padding: 10px; color: var(--zen-blue); }
+
+    /* Security: Visual indicator when a screenshot/print is attempted */
+    @media print {
+        body { display: none !important; }
+    }
 
     .portal-wrapper {
         width: 100%; max-width: 1100px; margin: 0 auto; background: var(--zen-white);
         border-radius: 20px; box-shadow: 0 10px 40px rgba(35,54,93,0.12);
         display: flex; flex-direction: column; height: 95vh; overflow: hidden; position: relative;
+    }
+
+    /* Image Security: Disable pointer events on images directly */
+    img {
+        pointer-events: none;
+        -webkit-user-drag: none;
     }
 
     #zenLoader {
@@ -44,7 +64,6 @@
         box-shadow: 0 3px 6px rgba(0,0,0,0.1);
     }
 
-    /* --- FILTERS --- */
     .filter-bar { background: #f1f3f6; padding: 12px 15px; border-bottom: 1px solid #ddd; }
     .filter-grid { display: flex; gap: 10px; align-items: flex-end; }
     .filter-item { flex: 1; min-width: 0; }
@@ -53,10 +72,8 @@
     label { font-size: 9px; font-weight: 700; text-transform: uppercase; color: var(--zen-blue); margin-bottom: 4px; display: block; overflow: hidden; white-space: nowrap; }
     input, select { padding: 8px 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 12px; width: 100%; box-sizing: border-box; background: #fff; }
 
-    /* --- VIEWS --- */
     .view-container { flex: 1; overflow-y: auto; padding: 15px; background: #fafafa; scroll-behavior: smooth; }
     
-    /* Scrollable Grid for Association Cards */
     .group-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; }
     .group-card {
         background: #fff; border-radius: 16px; padding: 20px; text-align: center;
@@ -66,7 +83,6 @@
     .group-card img { width: 70px; height: 70px; object-fit: contain; margin-bottom: 10px; }
     .group-card h3 { font-family: 'Playfair Display'; margin: 0; font-size: 1.3rem; }
 
-    /* Member List Item */
     .member-item-container { background: #fff; margin-bottom: 12px; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
     .member-main-card { display: flex; gap: 12px; align-items: center; padding: 12px; cursor: pointer; }
     .member-thumb { width: 65px; height: 65px; min-width: 65px; border-radius: 50%; border: 2.5px solid var(--zen-gold); overflow: hidden; }
@@ -88,9 +104,7 @@
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 </style>
 </head>
-<body>
-
-<div class="portal-wrapper">
+<body oncontextmenu="return false;"> <div class="portal-wrapper">
     <div id="zenLoader">
         <div class="zen-spinner"></div>
         <div class="zen-text">ZEN - DNA</div>
@@ -125,6 +139,25 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 <script>
+// --- SECURITY SCRIPT ---
+// Disable keyboard shortcuts (F12, Ctrl+U, Ctrl+Shift+I, etc.)
+document.addEventListener('keydown', function(e) {
+    if (e.keyCode == 123 || 
+        (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || 
+        (e.ctrlKey && e.keyCode == 85)) {
+        e.preventDefault();
+        return false;
+    }
+});
+
+// Detect PrintScreen or Screenshot combos to blur content
+document.addEventListener('keyup', function(e) {
+    if (e.key == "PrintScreen") {
+        navigator.clipboard.writeText("");
+        alert('Screenshots are disabled for privacy.');
+    }
+});
+
 const M_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVJQvFnPF1VyjviyayOG3_amxou7SLiM2KniqdxOAGy-GTySJtBgxWvlevoKa8zqd3UwT7dACQYm9I/pub?gid=0&single=true&output=csv";
 const I_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVJQvFnPF1VyjviyayOG3_amxou7SLiM2KniqdxOAGy-GTySJtBgxWvlevoKa8zqd3UwT7dACQYm9I/pub?gid=635742688&single=true&output=csv";
 
@@ -138,15 +171,11 @@ function getImg(u, sz='w600') {
 }
 
 Promise.all([fetch(I_CSV).then(r => r.text()), fetch(M_CSV).then(r => r.text())]).then(([iCsv, mCsv]) => {
-    // Parse and Sort Association Info by Latest Year
     associationInfo = Papa.parse(iCsv, {header:true}).data.filter(r => r["ZALC Name"]);
     associationInfo.sort((a, b) => b["Academic Year"].localeCompare(a["Academic Year"]));
-
     allMembers = Papa.parse(mCsv, {header:true}).data.filter(r => r.Name);
-    
     const yrs = [...new Set(associationInfo.map(a => a["Academic Year"]))];
     yrs.forEach(y => document.getElementById("filterYear").innerHTML += `<option value="${y}">${y}</option>`);
-    
     document.getElementById("zenLoader").style.display = "none";
     showHome();
 });
@@ -158,8 +187,6 @@ function showHome() {
     document.getElementById("yearFilterWrap").style.display = 'block';
     document.getElementById("portalTitle").innerText = "ZALC Members Portal";
     document.getElementById("portalSubTitle").style.display = 'none';
-    
-    // Clear temporary filter values
     document.getElementById("filterYear").value = "";
     document.getElementById("searchBox").value = "";
     applyFilters();
@@ -171,18 +198,14 @@ function openZalc(year) {
     document.getElementById("backBtn").style.display = 'block';
     document.getElementById("detailFilters").style.display = 'flex';
     document.getElementById("yearFilterWrap").style.display = 'none';
-    
     document.getElementById("portalTitle").innerText = info["ZALC Name"];
     document.getElementById("portalSubTitle").innerText = info["Academic Year"];
     document.getElementById("portalSubTitle").style.display = 'block';
-    
     const subset = allMembers.filter(m => m["Academic Year"] === year);
     const classes = [...new Set(subset.map(m => m.Class))].filter(Boolean);
     const pos = [...new Set(subset.map(m => m.Position))].filter(Boolean);
-    
     document.getElementById("filterClass").innerHTML = '<option value="">All</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join('');
     document.getElementById("filterPos").innerHTML = '<option value="">All</option>' + pos.map(p => `<option value="${p}">${p}</option>`).join('');
-    
     document.getElementById("filterYear").value = year;
     applyFilters();
 }
@@ -192,7 +215,6 @@ function applyFilters() {
     const yr = document.getElementById("filterYear").value;
     const body = document.getElementById("mainBody");
     body.innerHTML = "";
-
     if (currentView === 'home' && q === "" && yr === "") {
         renderGroups(associationInfo);
     } else {
@@ -210,33 +232,27 @@ function applyFilters() {
 }
 
 function renderGroups(data) {
-    const grid = document.createElement("div"); 
-    grid.className = "group-grid";
+    const grid = document.createElement("div"); grid.className = "group-grid";
     data.forEach(a => {
-        const card = document.createElement("div"); 
-        card.className = "group-card";
+        const card = document.createElement("div"); card.className = "group-card";
         card.onclick = () => openZalc(a["Academic Year"]);
         card.innerHTML = `<img src="${getImg(a["ZALC Logo"])}"><h3>${a["ZALC Name"]}</h3><p>${a["Academic Year"]}</p>`;
         grid.appendChild(card);
     });
     document.getElementById("mainBody").appendChild(grid);
-    document.getElementById("statsBar").innerText = `Available Directories: ${data.length}`;
 }
 
 function renderMembers(data, isGlobal) {
     data.forEach((m, i) => {
         const zInfo = associationInfo.find(a => a["Academic Year"] === m["Academic Year"]) || { "ZALC Name": "ZALC" };
-        const container = document.createElement("div"); 
-        container.className = "member-item-container";
-        
-        // Dynamic cleanup: No empty fields, no labels for missing data
+        const container = document.createElement("div"); container.className = "member-item-container";
         const classLine = m.Class ? `<div>${m.Class}</div>` : "";
         const deptLine = m["Dept No"] ? `<div><b>Dept No:</b> ${m["Dept No"]}</div>` : "";
         const posLine = m.Position ? `<div><b>Position:</b> ${m.Position}</div>` : "";
 
         container.innerHTML = `
             <div class="member-main-card" onclick="${isGlobal ? `openZalc('${m["Academic Year"]}')` : `toggleSection(${i})`}">
-                <div class="member-thumb"><img src="${getImg(m["Photo URL"], 'w200')}"></div>
+                <div class="member-thumb"><img src="${getImg(m["Photo URL"], 'w200')}" onmousedown="return false;"></div>
                 <div class="details">
                     <div class="tag">${zInfo["ZALC Name"]} | ${m["Academic Year"]}</div>
                     <div class="m-name">${m.Name}</div>
@@ -244,19 +260,17 @@ function renderMembers(data, isGlobal) {
                 </div>
             </div>
             <div id="sec-${i}" class="expanded-section">
-                <img src="${getImg(m["Photo URL"], 'w800')}">
+                <img src="${getImg(m["Photo URL"], 'w800')}" onmousedown="return false;">
                 <div class="close-btn" onclick="toggleSection(${i})">▲ Close Preview</div>
             </div>
         `;
         document.getElementById("mainBody").appendChild(container);
     });
-    document.getElementById("statsBar").innerText = `Found ${data.length} Results`;
 }
 
 function toggleSection(i) {
     const el = document.getElementById(`sec-${i}`);
     el.classList.toggle("open");
-    if(el.classList.contains("open")) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 </script>
 </body>

@@ -8,8 +8,25 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 :root { --blue: #23365D; --maroon: #6C232E; --gold: #D4A64A; --light: #F4F6F9; }
+
+/* Security: Prevent text selection and touch callouts */
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
 body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--light); color: var(--blue); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding-top: 10px; }
+
+/* Security: Disable printing */
+@media print { body { display: none !important; } }
+
 .container { width: 100%; max-width: 350px; padding: 5px; text-align: center; }
+
+/* Security: Block pointer events on images */
+img { pointer-events: none; -webkit-user-drag: none; }
 
 /* --- COMPACT PROFESSIONAL HEADER --- */
 .main-heading { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: bold; margin: 0; white-space: nowrap; letter-spacing: 0.5px; }
@@ -32,32 +49,17 @@ body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--light); 
 .slider { display: flex; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
 .slide { min-width: 100%; padding: 25px 15px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; position: relative; }
 
-/* Desktop Navigation Buttons */
 .nav-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.8);
-    border: none;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    color: var(--blue);
-    cursor: pointer;
-    z-index: 10;
-    display: none; /* Hidden on mobile */
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    transition: 0.3s;
+    position: absolute; top: 50%; transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.8); border: none; width: 30px; height: 30px;
+    border-radius: 50%; color: var(--blue); cursor: pointer; z-index: 10;
+    display: none; align-items: center; justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.3s;
 }
 .nav-btn:hover { background: var(--maroon); color: #fff; }
-.prev { left: 5px; }
-.next { right: 5px; }
+.prev { left: 5px; } .next { right: 5px; }
 
-@media (min-width: 768px) {
-    .nav-btn { display: flex; }
-}
+@media (min-width: 768px) { .nav-btn { display: flex; } }
 
 .corner-logo { position: absolute; top: 10px; right: 10px; width: 35px; height: 35px; background-size: contain; background-repeat: no-repeat; background-position: center; z-index: 5; opacity: 0.9; }
 
@@ -77,7 +79,8 @@ body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--light); 
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
+
 <div class="container" id="app">
     <div id="loading"><div class="skeleton"></div></div>
     <div id="main-content" style="display:none">
@@ -96,6 +99,14 @@ body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--light); 
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 <script>
+// --- SECURITY SCRIPT ---
+document.addEventListener('keydown', function(e) {
+    if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) {
+        e.preventDefault(); return false;
+    }
+});
+document.addEventListener('keyup', function(e) { if (e.key == "PrintScreen") { navigator.clipboard.writeText(""); alert('Screenshots disabled.'); } });
+
 const M_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVJQvFnPF1VyjviyayOG3_amxou7SLiM2KniqdxOAGy-GTySJtBgxWvlevoKa8zqd3UwT7dACQYm9I/pub?gid=0&single=true&output=csv";
 const I_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVJQvFnPF1VyjviyayOG3_amxou7SLiM2KniqdxOAGy-GTySJtBgxWvlevoKa8zqd3UwT7dACQYm9I/pub?gid=635742688&single=true&output=csv";
 
@@ -109,23 +120,10 @@ const gU = u => {
     return m ? `https://drive.google.com/thumbnail?id=${m[0]}&sz=w600` : u;
 };
 
-function updateSlide() {
-    const s = document.getElementById('sd');
-    s.style.transform = `translateX(-${cur * 100}%)`;
-}
+function updateSlide() { document.getElementById('sd').style.transform = `translateX(-${cur * 100}%)`; }
+function moveSlide(dir) { cur = (cur + dir + ttl) % ttl; updateSlide(); resetTimer(); }
+function resetTimer() { clearInterval(slideInterval); slideInterval = setInterval(() => { moveSlide(1); }, 5000); }
 
-function moveSlide(dir) {
-    cur = (cur + dir + ttl) % ttl;
-    updateSlide();
-    resetTimer();
-}
-
-function resetTimer() {
-    clearInterval(slideInterval);
-    slideInterval = setInterval(() => { moveSlide(1); }, 5000);
-}
-
-// Mobile Swipe Logic
 function initTouch() {
     const sw = document.getElementById('sw');
     let startX = 0;
@@ -142,21 +140,18 @@ async function init() {
         const [iR, mR] = await Promise.all([fetch(I_CSV), fetch(M_CSV)]);
         const iD = (Papa.parse(await iR.text(), {header:true})).data[0];
         const mD = (Papa.parse(await mR.text(), {header:true})).data;
-
         document.getElementById('ay').innerText = iD["Academic Year"] || "";
         document.getElementById('zalc-title').innerText = iD["ZALC Name"] || "";
         logoUrl = gU(iD["ZALC Logo"]);
-        
         const s = document.getElementById('sd');
         const vM = mD.filter(m => m.Name && m.Name !== "");
         ttl = vM.length;
-
         vM.forEach(m => {
             const d = document.createElement('div');
             d.className = 'slide';
             d.innerHTML = `
                 <div class="corner-logo" style="background-image: url('${logoUrl}')"></div>
-                <div class="frame"><img src="${gU(m["Photo URL"])}" onerror="this.src='https://via.placeholder.com/110?text=Member'"></div>
+                <div class="frame"><img src="${gU(m["Photo URL"])}" onmousedown="return false;" onerror="this.src='https://via.placeholder.com/110?text=Member'"></div>
                 <div class="name">${m.Name || ""}</div>
                 <div class="class-info">${m.Class || ""}</div>
                 <div class="dept-info">${m["Dept No"] ? `[ ${m["Dept No"]} ]` : ""}</div>
@@ -164,12 +159,9 @@ async function init() {
             `;
             s.appendChild(d);
         });
-
         document.getElementById('loading').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
-        
-        initTouch();
-        resetTimer();
+        initTouch(); resetTimer();
     } catch(e) { console.error(e); }
 }
 init();

@@ -18,108 +18,84 @@
             display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; 
         }
 
-        .container { 
-            width: 100%; max-width: 350px; margin: 0 auto; text-align: center; padding: 10px 5px; 
-        }
-        
-        h2 { 
-            font-family: 'Playfair Display', serif; color: var(--zen-blue); margin: 0 0 15px 0; font-size: 1.6rem; 
-        }
-        h2::after { 
-            content: ''; display: block; width: 40px; height: 3px; background: var(--zen-maroon); margin: 8px auto; 
-        }
+        .container { width: 100%; max-width: 350px; margin: 0 auto; text-align: center; padding: 10px 5px; }
+        h2 { font-family: 'Playfair Display', serif; color: var(--zen-blue); margin: 0 0 15px 0; font-size: 1.6rem; }
+        h2::after { content: ''; display: block; width: 40px; height: 3px; background: var(--zen-maroon); margin: 8px auto; }
 
-        /* CAROUSEL */
-        .carousel {
-            width: 100%; position: relative; overflow: hidden; padding-bottom: 15px;
-        }
-        .slides {
-            display: flex; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform;
-        }
+        .carousel { width: 100%; position: relative; overflow: hidden; padding-bottom: 15px; }
+        .slides { display: flex; transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1); will-change: transform; }
 
-        /* CARD */
+        /* FIXED SIZE CARD */
         .card { 
-            min-width: 100%; box-sizing: border-box;
+            min-width: 100%; height: 300px; box-sizing: border-box;
             background: #fff; border-radius: 20px; overflow: hidden; 
             box-shadow: 0 10px 25px rgba(35, 54, 93, 0.12); 
             display: flex; flex-direction: column; text-align: left;
             position: relative;
         }
 
-        /* TEXT WATERMARK */
-        .watermark-text {
-            position: absolute; bottom: 12px; right: 15px; font-size: 10px;
-            font-weight: 700; color: rgba(35, 54, 93, 0.2); letter-spacing: 1px; z-index: 5;
-        }
+        .watermark-text { position: absolute; bottom: 12px; right: 15px; font-size: 10px; font-weight: 700; color: rgba(35, 54, 93, 0.2); letter-spacing: 1px; z-index: 5; }
 
-        /* HEADER BOX */
         .header-box { 
-            height: 140px; position: relative; background: var(--zen-blue); 
+            height: 130px; position: relative; background: var(--zen-blue); 
             display: flex; flex-direction: column; align-items: center; justify-content: center; 
             overflow: hidden; flex-shrink: 0; z-index: 1; text-align: center;
         }
         
-        /* ALIGNED BACKGROUND "EXAM" TEXT */
         .header-box::after {
             content: "EXAM"; position: absolute; font-family: 'Playfair Display', serif;
-            font-size: 4.5rem; color: rgba(255,255,255,0.05); 
+            font-size: 4rem; color: rgba(255,255,255,0.05); 
             top: 50%; left: 50%; transform: translate(-50%, -50%); 
             letter-spacing: 4px; pointer-events: none; z-index: 0;
         }
 
-        /* TOP LEFT BADGE (Class) */
-        .class-badge { 
-            position: absolute; top: 12px; left: 12px; background: var(--zen-gold); 
-            color: var(--zen-blue); padding: 4px 12px; font-size: 10px; font-weight: 700; 
-            border-radius: 50px; z-index: 5; box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
-        }
-
-        /* TOP RIGHT BADGE (Exam Kind) */
-        .exam-kind-badge { 
-            position: absolute; top: 12px; right: 12px; background: var(--zen-maroon); 
-            color: #fff; padding: 4px 12px; font-size: 9px; font-weight: 700; 
-            border-radius: 50px; z-index: 5; box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
-            letter-spacing: 0.5px;
-        }
+        .class-badge { position: absolute; top: 12px; left: 12px; background: var(--zen-gold); color: var(--zen-blue); padding: 4px 12px; font-size: 10px; font-weight: 700; border-radius: 50px; z-index: 5; }
+        .exam-kind-badge { position: absolute; top: 12px; right: 12px; background: var(--zen-maroon); color: #fff; padding: 4px 12px; font-size: 9px; font-weight: 700; border-radius: 50px; z-index: 5; }
         
-        .exam-date {
-            font-family: 'Playfair Display', serif; color: #fff; font-size: 1.8rem; margin: 15px 0 5px 0; z-index: 2; line-height: 1;
-        }
-        .exam-countdown {
-            color: var(--zen-gold); font-size: 11px; font-weight: 600; letter-spacing: 1px; z-index: 2; text-transform: uppercase; margin-top: 4px;
-        }
-
+        .exam-date { font-family: 'Playfair Display', serif; color: #fff; font-size: 1.6rem; margin: 15px 0 5px 0; z-index: 2; line-height: 1; }
+        .exam-countdown { color: var(--zen-gold); font-size: 10px; font-weight: 600; letter-spacing: 1px; z-index: 2; text-transform: uppercase; margin-top: 2px; }
         .maroon-line { height: 4px; background: var(--zen-maroon); width: 100%; flex-shrink: 0; z-index: 2; position: relative; }
 
-        /* CONTENT AREA */
-        .content { padding: 18px 18px 35px 18px; text-align: left; flex-grow: 1; position: relative; z-index: 2; }
-        .category-tag { font-size: 10px; font-weight: 700; color: var(--zen-maroon); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; display: block; }
-        .res-title { font-family: 'Playfair Display', serif; font-size: 1.15rem; font-weight: bold; color: var(--zen-blue); margin-bottom: 12px; line-height: 1.2; }
-        
-        .detail-row {
-            display: flex; justify-content: space-between; border-top: 1px solid #eee; 
-            padding-top: 10px; margin-top: auto; font-size: 11.5px; color: #444; align-items: center;
+        /* SCROLLABLE CONTENT AREA */
+        .content { 
+            padding: 15px 18px 40px 18px; 
+            text-align: left; 
+            flex-grow: 1; 
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Contains the internal scroll */
+            position: relative; 
+            z-index: 2; 
         }
-        .detail-row strong { color: var(--zen-blue); }
+        
+        .category-tag { font-size: 10px; font-weight: 700; color: var(--zen-maroon); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; flex-shrink: 0; }
+        
+        /* INTERNAL SCROLL CONTAINER */
+        .scroll-area {
+            overflow-y: auto;
+            flex-grow: 1;
+            padding-right: 5px;
+        }
 
-        /* EXAM PORTAL BUTTON (Matches Alumni Model Exactly) */
+        /* Custom Scrollbar for Zen Theme */
+        .scroll-area::-webkit-scrollbar { width: 4px; }
+        .scroll-area::-webkit-scrollbar-track { background: transparent; }
+        .scroll-area::-webkit-scrollbar-thumb { background: var(--zen-maroon); border-radius: 10px; }
+
+        .subject-group { margin-bottom: 12px; border-bottom: 1px solid #f5f5f5; padding-bottom: 8px; }
+        .subject-group:last-of-type { border-bottom: none; }
+        .res-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: bold; color: var(--zen-blue); margin-bottom: 3px; line-height: 1.2; }
+        .sub-code { font-size: 11px; color: #666; font-weight: 500; }
+        .sub-code strong { color: var(--zen-blue); }
+
         .btn-wrap { margin-top: 5px; padding-bottom: 20px; }
-        .btn-wrap a { 
-            background: var(--zen-blue); color: #fff; padding: 8px 18px; 
-            border-radius: 8px; text-decoration: none; font-size: 12px; 
-            font-weight: 600; transition: 0.3s; display: inline-block; 
-        }
-        .btn-wrap a:hover { opacity: 0.9; }
+        .btn-wrap a { background: var(--zen-blue); color: #fff; padding: 8px 18px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 600; transition: 0.3s; display: inline-block; }
 
-        /* SKELETON LOADER */
-        .skeleton { 
-            min-width: 100%; height: 280px; 
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); 
-            background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 20px; 
-        }
+        .no-exams-msg { padding: 40px 20px; background: #fff; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); color: #666; font-size: 13px; min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center;}
+        .no-exams-msg b { color: var(--zen-blue); display: block; font-size: 1.2rem; margin: 10px 0; }
+
+        .skeleton { min-width: 100%; height: 380px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 20px; }
         @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-        
-        .message { font-size: 12px; color: #666; padding: 20px; text-align: center; width: 100%; }
     </style>
 </head>
 <body>
@@ -139,7 +115,6 @@
 </div>
 
 <script>
-// CSV LINKS
 const sheetLinks = [
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRueYxNvUx2fn0rLxHcRQ2RJ8VyfTZr-uaJmkG0aaxEbsteWeOauYqP1DtWimZNSVlfn9XhZkjA1bkl/pub?gid=0&single=true&output=csv",
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRueYxNvUx2fn0rLxHcRQ2RJ8VyfTZr-uaJmkG0aaxEbsteWeOauYqP1DtWimZNSVlfn9XhZkjA1bkl/pub?gid=1168000137&single=true&output=csv",
@@ -147,16 +122,8 @@ const sheetLinks = [
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vRueYxNvUx2fn0rLxHcRQ2RJ8VyfTZr-uaJmkG0aaxEbsteWeOauYqP1DtWimZNSVlfn9XhZkjA1bkl/pub?gid=255698561&single=true&output=csv"
 ];
 
-const examKinds = [
-  "FIRST CIA",
-  "SECOND CIA",
-  "PRACTICAL EXAM",
-  "SEMESTER EXAM"
-];
-
-let index = 0;
-let interval;
-let totalExams = 0;
+const examKinds = ["FIRST CIA", "SECOND CIA", "PRACTICAL EXAM", "SEMESTER EXAM"];
+let index = 0, interval, totalExams = 0;
 
 async function loadCSV(url, sheetIndex) {
   try {
@@ -165,152 +132,110 @@ async function loadCSV(url, sheetIndex) {
     const text = await res.text();
     const rows = text.trim().split("\n").map(r => r.split(","));
     rows.shift(); 
-
     return rows.map(r => ({
-      sem: r[1]?.trim(),
-      className: r[2]?.trim(),
-      date: r[3]?.trim(),
-      code: r[4]?.trim(),
-      subject: r[5]?.trim(),
-      type: r[6]?.trim(),
+      sem: r[1]?.trim(), className: r[2]?.trim(), date: r[3]?.trim(),
+      code: r[4]?.trim(), subject: r[5]?.trim(), type: r[6]?.trim(),
       examKind: examKinds[sheetIndex] 
     })).filter(r => r.date && r.className); 
-  } catch (e) {
-    return [];
-  }
+  } catch (e) { return []; }
 }
 
 async function init() {
   const slidesContainer = document.getElementById("slides");
-
   try {
     const results = await Promise.all(sheetLinks.map((url, i) => loadCSV(url, i)));
     let data = results.flat();
+    const now = new Date(); now.setHours(0, 0, 0, 0);
 
     data.forEach(d => {
       const p = d.date.split(/[-/]/);
-      if (p.length === 3) {
-        d.dateObj = new Date(p[2], p[1] - 1, p[0]);
-      } else {
-        d.dateObj = new Date(0);
-      }
+      d.dateObj = p.length === 3 ? new Date(p[2], p[1] - 1, p[0]) : new Date(0);
     });
-
-    const now = new Date();
-    now.setHours(0, 0, 0, 0);
 
     const future = data.filter(d => d.dateObj >= now);
 
     if (future.length === 0) {
-      slidesContainer.innerHTML = `<div class="message">No upcoming exams scheduled.</div>`;
+      slidesContainer.innerHTML = `
+        <div class="no-exams-msg">
+            <span style="font-size: 3rem;">📝</span>
+            <b>No Current Exams</b>
+            No upcoming exams scheduled at the moment. Kindly check back later for updates.
+        </div>`;
       return;
     }
 
-    const classMap = {};
+    const classSoonestDate = {};
     future.forEach(d => {
-      if (!classMap[d.className] || d.dateObj < classMap[d.className].dateObj) {
-        classMap[d.className] = d;
-      }
+        if (!classSoonestDate[d.className] || d.dateObj < classSoonestDate[d.className]) {
+            classSoonestDate[d.className] = d.dateObj;
+        }
     });
 
-    const exams = Object.values(classMap).sort((a, b) => a.dateObj - b.dateObj);
+    const finalGroups = {};
+    future.forEach(d => {
+        if (d.dateObj.getTime() === classSoonestDate[d.className].getTime()) {
+            if (!finalGroups[d.className]) finalGroups[d.className] = { info: d, subjects: [] };
+            finalGroups[d.className].subjects.push({ title: d.subject, code: d.code });
+        }
+    });
+
+    const exams = Object.values(finalGroups).sort((a, b) => a.info.dateObj - b.info.dateObj);
     totalExams = exams.length;
 
     slidesContainer.innerHTML = exams.map(e => {
-      const dateStr = e.dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
-      const diff = Math.round((e.dateObj - now) / (1000 * 60 * 60 * 24));
-      
-      let status = "";
-      if (diff === 0) status = "✨ TODAY";
-      else if (diff === 1) status = " ⏳ TOMORROW";
-      else status = `IN ${diff} DAYS`;
+      const d = e.info;
+      const dateStr = d.dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+      const diff = Math.round((d.dateObj - now) / (1000 * 60 * 60 * 24));
+      let status = diff === 0 ? "✨ TODAY" : (diff === 1 ? "⏳ TOMORROW" : `IN ${diff} DAYS`);
 
       return `
         <div class="card">
             <div class="header-box">
-                <div class="class-badge">${e.className}</div>
-                <div class="exam-kind-badge">${e.examKind}</div>
-                
+                <div class="class-badge">${d.className}</div>
+                <div class="exam-kind-badge">${d.examKind}</div>
                 <div class="exam-date">${dateStr}</div>
                 <div class="exam-countdown">${status}</div>
             </div>
-            
             <div class="maroon-line"></div>
-
             <div class="content">
-                <span class="category-tag">SEMESTER ${e.sem} • ${e.type}</span>
-                <div class="res-title">${e.subject}</div>
-                
-                <div class="detail-row">
-                    <span><strong>Subject Code:</strong> ${e.code}</span>
+                <span class="category-tag">SEMESTER ${d.sem} • ${d.type}</span>
+                <div class="scroll-area">
+                    ${e.subjects.map(s => `
+                        <div class="subject-group">
+                            <div class="res-title">${s.title}</div>
+                            <div class="sub-code"><strong>Subject Code:</strong> ${s.code}</div>
+                        </div>
+                    `).join("")}
                 </div>
-                
                 <div class="watermark-text">ZEN-DNA</div>
             </div>
         </div>
       `;
     }).join("");
 
-    if (totalExams > 1) {
-      setupInteractions();
-      startSlider();
-    }
-
+    if (totalExams > 1) { setupInteractions(); startSlider(); }
   } catch (error) {
     slidesContainer.innerHTML = `<div class="message">Failed to load exam data.</div>`;
   }
 }
 
-function startSlider() {
-  if (totalExams <= 1) return;
-  interval = setInterval(() => {
-    index = (index + 1) % totalExams;
-    updateSlide();
-  }, 4500);
-}
-
-function stopSlider() {
-  clearInterval(interval);
-}
-
-function updateSlide() {
-  document.getElementById("slides").style.transform = `translateX(-${index * 100}%)`;
-}
+function startSlider() { if (totalExams <= 1) return; interval = setInterval(() => { index = (index + 1) % totalExams; updateSlide(); }, 4500); }
+function stopSlider() { clearInterval(interval); }
+function updateSlide() { document.getElementById("slides").style.transform = `translateX(-${index * 100}%)`; }
 
 function setupInteractions() {
   const carousel = document.getElementById("carousel");
   let startX = 0;
-  let isSwiping = false;
-
-  carousel.addEventListener("mouseenter", stopSlider);
-  carousel.addEventListener("mouseleave", startSlider);
-
-  carousel.addEventListener("touchstart", (e) => {
-    startX = e.touches[0].clientX;
-    isSwiping = true;
-    stopSlider();
-  }, {passive: true});
-
+  carousel.addEventListener("touchstart", (e) => { startX = e.touches[0].clientX; stopSlider(); }, {passive: true});
   carousel.addEventListener("touchend", (e) => {
-    if (!isSwiping) return;
-    let endX = e.changedTouches[0].clientX;
-    let diff = startX - endX;
-
-    if (diff > 50) {
-      index = (index + 1) % totalExams;
-      updateSlide();
-    } else if (diff < -50) {
-      index = (index - 1 + totalExams) % totalExams;
-      updateSlide();
-    }
-    
-    isSwiping = false;
-    startSlider();
+    let diff = startX - e.changedTouches[0].clientX;
+    if (diff > 50) index = (index + 1) % totalExams;
+    else if (diff < -50) index = (index - 1 + totalExams) % totalExams;
+    updateSlide(); startSlider();
   }, {passive: true});
 }
 
 init();
 </script>
-
 </body>
 </html>

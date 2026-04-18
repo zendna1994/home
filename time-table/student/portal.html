@@ -343,4 +343,254 @@ async function init() {
             this.classList.add('active'); 
             currentYear = this.dataset.year; 
             renderTimetable(); 
-  
+                    }; 
+    });
+
+    const dp = document.getElementById('datePick');
+    dp.value = toIST_YMD(); selectedDate = ymdToDMY(dp.value);
+    dp.onchange = e => { 
+        selectedDate = ymdToDMY(e.target.value); 
+        document.getElementById('meta').innerHTML = '<div class="loading-wrap"><div class="loader"></div>Fetching schedule...</div>';
+        document.getElementById('tableContainer').innerHTML = '<div class="loading-wrap"><div class="loader"></div>Loading timetable...</div>';
+        setTimeout(() => { renderDayMeta(); }, 300); // Slight delay for UX
+    };
+
+    // Fetch Data
+    const [di, gt, tp] = await Promise.all([loadCSV(dayInfoUrl), loadCSV(generalTTUrl), loadCSV(timePeriodUrl)]);
+    dayInfo = di;
+    tp.forEach(r => { if (r.Hour) timeSlots[r.Hour.trim()] = r.Time; });
+    gt.forEach(r => { if (r["Day Order"] && r["Year"]) ttMap[`${r["Day Order"].trim()}|${r["Year"].trim()}`] = r; });
+    
+    buildUniqueSubjects();
+
+    const sy = document.getElementById('searchYearSelect');
+    sy.onchange = () => { populateSubjectDropdown(sy.value); searchStaff(); };
+    document.getElementById('searchSubjectSelect').onchange = searchStaff;
+    document.getElementById('staffSearch').oninput = searchStaff;
+
+    renderDayMeta(); 
+
+    // PRINT LOGIC
+    document.getElementById('printBtn').onclick = async () => {
+        const row = findDayInfo(selectedDate);
+        let metaHtml = '';
+        
+        if(row){
+            let orderOrExam = isExamDay(row) ? "Examination Day" : (row["Day Order"] || 'N/A');
+            metaHtml = `
+                <div class="print-meta-grid">
+                    <div class="print-meta-item"><span class="print-meta-label">Date</span><span class="print-meta-value">${selectedDate}</span></div>
+                    <div class="print-meta-item"><span class="print-meta-label">Day Info</span><span class="print-meta-value">${orderOrExam}</span></div>
+                    <div class="print-meta-item"><span class="print-meta-label">Class</span><span class="print-meta-value">${currentYear}</span></div>
+                </div>
+            `;
+            if(row.Event || (row.Working || "").toLowerCase() !== "yes" || isExamDay(row)) {
+                metaHtml += `<div class="print-event-alert">Event / Notes: ${row.Event || row.Reason || 'Examinations Scheduled'}</div>`;
+            }
+        } else {
+            metaHtml = `<div class="print-meta-grid"><div class="print-meta-item"><span class="print-meta-label">Date</span><span class="print-meta-value">${selectedDate}</span></div><div class="print-meta-item"><span class="print-meta-label">Class</span><span class="print-meta-value">${currentYear}</span></div></div>`;
+        }
+        
+        document.getElementById('printMetaInfo').innerHTML = metaHtml;
+        let ip = "N/A"; try { const resp = await fetch('https://api.ipify.org?format=json'); const data = await resp.json(); ip = data.ip; } catch(e){}
+        document.getElementById('printDetails').textContent = `IP Address: ${ip} | Generated on: ${new Date().toLocaleString('en-IN')}`;
+        window.print();
+    };
+}
+
+// --- RENDER DAY INFO ---
+function renderDayMeta() {
+    const meta = document.getElementById('meta');
+    const row = findDayInfo(selectedDate);
+    document.getElementById('holidayReason').innerHTML = ""; 
+
+    if (!row) { 
+        meta.innerHTML = `<div class="day-info-grid"><div class="info-card alert"><div class="info-label">Status</div><div class="info-value" style="color:var(--zen-maroon);">No Data Available for ${selectedDate}</div></div></div>`;
+        renderTimetable(); 
+        return; 
+    }
+
+    const working = (row.Working || "").toLowerCase() === "yes";
+    const examDay = isExamDay(row);
+
+    let html = `<div class="day-info-grid">
+        <div class="info-card">
+            <div class="info-label">Selected Date</div>
+            <div class="info-value">${row.Day}, ${selectedDate}</div>
+        </div>`;
+
+    if (examDay) {
+        html += `
+        <div class="info-card" style="border-left-color: var(--zen-blue);">
+            <div class="info-label">Day Status</div>
+            <div class="info-value">Examination Day</div>
+        </div>`;
+        if(row.Event || row.Reason) {
+            html += `
+            <div class="info-card" style="grid-column: 1 / -1;">
+                <div class="info-label">Exam Details / Notes</div>
+                <div class="info-value" style="font-size:12px;">${row.Event || row.Reason}</div>
+            </div>`;
+        }
+    } else if (!working) { 
+        html += `
+        <div class="info-card alert">
+            <div class="info-label">Status</div>
+            <div class="info-value" style="color:var(--zen-maroon);">Holiday</div>
+        </div>
+        <div class="info-card" style="grid-column: 1 / -1;">
+            <div class="info-label">Reason / Details</div>
+            <div class="info-value" style="font-size:12px; color:#555;">${row.Reason || "No specific reason provided."}</div>
+        </div>`;
+    } else { 
+        html += `
+        <div class="info-card">
+            <div class="info-label">Day Order</div>
+            <div class="info-value">Day ${row["Day Order"] || '-'}</div>
+        </div>`;
+        if(row.Event) {
+            html += `
+            <div class="info-card" style="grid-column: 1 / -1;">
+                <div class="info-label">Special Event / Notes</div>
+                <div class="info-value" style="font-size:12px;">${row.Event}</div>
+            </div>`;
+        }
+    }
+    html += `</div>`;
+    meta.innerHTML = html;
+    renderTimetable();
+}
+
+function renderTimetable() {
+    const row = findDayInfo(selectedDate);
+    const tc = document.getElementById('tableContainer');
+    const note = document.getElementById('ttNote');
+    tc.innerHTML = ""; note.textContent = "";
+
+    if (!row) {
+        tc.innerHTML = `<div style="text-align:center; padding:20px; color:#64748b;">No data available for this date.</div>`; return;
+    }
+
+    if (isExamDay(row)) {
+        tc.innerHTML = `
+            <div class="exam-alert-box">
+                <i class="fas fa-file-alt" style="font-size: 35px; color: var(--zen-maroon); margin-bottom: 15px;"></i>
+                <h3 style="color: var(--zen-blue); margin: 0 0 10px 0;">Examination Day</h3>
+                <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">Regular classes are suspended. Please check the Exam portal for your schedule.</p>
+                <a href="https://azbtweb.wixsite.com/zen-dna/exam-timetable" target="_blank" class="exam-link-btn">View Exam Timetable →</a>
+            </div>
+        `;
+        note.textContent = `${currentYear} • Examination Day • ${selectedDate}`;
+        return;
+    }
+
+    if ((row.Working || "").toLowerCase() !== "yes") {
+        tc.innerHTML = `<div style="text-align:center; padding: 20px; background:#fff5f5; color:var(--zen-maroon); border-radius:10px; border:1px solid #fca5a5;"><strong>Holiday:</strong> ${row?.Reason || "No classes scheduled"}</div>`;
+        return;
+    }
+
+    const hoursVal = (row.Hours || "").trim();
+    const isFullDayNoClass = hoursVal === "-";
+    let allowedHours = [];
+    if (hoursVal !== "" && hoursVal !== "-") { allowedHours = hoursVal.split(',').map(h => h.trim()); }
+
+    const entry = ttMap[`${row["Day Order"].trim()}|${currentYear}`];
+    if (!entry) { tc.innerHTML = "<div style='text-align:center; padding:20px; color:#64748b;'>Timetable data missing for this day.</div>"; return; }
+
+    let html = `<div class="table-responsive"><table><tr><th>Hour</th><th>Code</th><th>Subject</th><th>Staff</th><th>Time</th></tr>`;
+    
+    HOUR_COLS.forEach(h => {
+        const hNum = h.split(' ')[0].replace(/\D/g, ''); 
+        const isClassAllowed = !isFullDayNoClass && (hoursVal === "" || allowedHours.includes(hNum));
+        const val = entry[h] || "No Class";
+
+        if (!isClassAllowed || val === "No Class") {
+            html += `<tr style="background:#fcfcfc; color:#999;"><td>${h}</td><td>-</td><td>No Class</td><td>-</td><td>${timeSlots[h] || ""}</td></tr>`;
+        } else {
+            const [c, s, st] = splitSubject(val);
+            html += `<tr><td><strong>${h}</strong></td><td>${c}</td><td style="color:var(--zen-blue); font-weight:600;">${s}</td><td>${st}</td><td style="font-size:10px; color:#64748b;">${timeSlots[h] || ""}</td></tr>`;
+        }
+    });
+    
+    tc.innerHTML = html + "</table></div>";
+    note.textContent = `Showing schedule for: ${currentYear} • Order ${row["Day Order"]} • ${selectedDate}`;
+}
+
+// --- SEARCH ENGINE ---
+function searchStaff() {
+    const out = document.getElementById('searchOut');
+    const q = document.getElementById('staffSearch').value.trim().toLowerCase();
+    const sy = document.getElementById('searchYearSelect').value;
+    const ss = document.getElementById('searchSubjectSelect').value;
+
+    if (q.length < 2 && ss === "" && sy === "") { 
+        out.innerHTML = "<div style='text-align:center; padding-top: 20px; font-size: 12px; color: #64748b;'>Use the filters above to search classes.</div>"; 
+        return; 
+    }
+    
+    let allResults = [];
+    dayInfo.forEach(row => {
+        const order = row["Day Order"];
+        const hoursVal = (row.Hours || "").trim();
+        // Skip holidays and exam days in regular class search
+        if (!order || (row.Working || "").toLowerCase() !== "yes" || hoursVal === "-" || isExamDay(row)) return;
+        
+        let allowedHours = (hoursVal === "") ? ["1", "2", "3", "4", "5"] : hoursVal.split(',').map(h => h.trim());
+
+        const years = sy ? [sy] : ["1st UG", "2nd UG", "3rd UG", "1st PG", "2nd PG"];
+        years.forEach(year => {
+            const entry = ttMap[`${order.trim()}|${year}`];
+            if (!entry) return;
+            HOUR_COLS.forEach(h => {
+                const hNum = h.split(' ')[0].replace(/\D/g, '');
+                if (hoursVal !== "" && !allowedHours.includes(hNum)) return;
+
+                const info = entry[h] || "";
+                if (!info || info === "No Class") return;
+                const [code, subject, staff] = splitSubject(info);
+                if ((q.length >= 2 ? staff.toLowerCase().includes(q) : true) && (ss === "" || subject.toLowerCase() === ss)) {
+                    allResults.push({ date: row.Date, dateObj: parseDate(row.Date), hour: h, code, subject, staff, year, order });
+                }
+            });
+        });
+    });
+
+    allResults.sort((a, b) => a.dateObj - b.dateObj);
+    let today = [], upcoming = [], past = [];
+    
+    allResults.forEach(res => {
+        if (res.dateObj.getTime() === todayUTC.getTime()) today.push(res);
+        else if (res.dateObj.getTime() < todayUTC.getTime()) past.push(res);
+        else upcoming.push(res);
+    });
+
+    let html = '';
+    if (today.length) { html += `<h3 class="search-category-header">Today's Classes (${today.length})</h3>`; today.forEach(r => html += formatResCard(r, 'today')); }
+    if (upcoming.length) { html += `<h3 class="search-category-header">Upcoming Classes (${upcoming.length})</h3>`; upcoming.forEach(r => html += formatResCard(r, 'upcoming')); }
+    if (past.length) { html += `<h3 class="search-category-header">Past Classes (${past.length})</h3>`; past.reverse().forEach(r => html += formatResCard(r, 'past')); }
+    
+    out.innerHTML = html || "<div style='text-align:center; padding: 20px; color:#64748b; font-size:12px;'>No matching classes found.</div>";
+}
+
+function formatResCard(res, type) {
+    let tagClass = type === 'today' ? 'tag-present' : (type === 'past' ? 'tag-past' : 'tag-upcoming');
+    let tagText = type === 'today' ? 'Present' : (type === 'past' ? 'Past' : 'Upcoming');
+    
+    return `
+    <div class="search-card">
+        <div>
+            <div style="font-weight: 700; font-size: 13px; color: var(--zen-blue); margin-bottom:4px;">${res.subject} <span style="font-weight:400; color:#888;">(${res.code})</span></div>
+            <div style="font-size: 11px; color: #555; line-height: 1.4;">
+                <strong>${res.date}</strong> | ${res.hour} <br>
+                <strong>Class:</strong> ${res.year} (Day ${res.order}) <br>
+                <strong>Staff:</strong> <span style="color:var(--zen-maroon); font-weight:600;">${res.staff}</span>
+            </div>
+        </div>
+        <span class="status-tag ${tagClass}">${tagText}</span>
+    </div>`;
+}
+
+init();
+</script>
+</body>
+</html>

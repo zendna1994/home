@@ -8,7 +8,15 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 :root { --blue: #23365D; --maroon: #6C232E; --gold: #D4A64A; --light: #F4F6F9; }
+/* Add this to your <style> section */
+.slider-wrap {
+    scrollbar-width: none; /* For Firefox */
+    -ms-overflow-style: none; /* For Internet Explorer/Edge */
+}
 
+.slider-wrap::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Opera */
+}
 /* Security: Prevent text selection and touch callouts */
 * {
     -webkit-user-select: none;

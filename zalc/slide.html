@@ -9,7 +9,6 @@
 <style>
 :root { --zen-blue: #23365D; --zen-maroon: #6C232E; --zen-gold: #D4A64A; --zen-light: #F4F6F9; }
 
-/* GLOBAL LOCK: Prevents any up/down or side scrolling on the page */
 html, body { 
     margin: 0; 
     padding: 0;
@@ -24,7 +23,6 @@ html, body {
     align-items: flex-start;
 }
 
-/* Security: Prevent text selection and long-press menus */
 * {
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -33,10 +31,9 @@ html, body {
     -webkit-touch-callout: none;
 }
 
-/* Security: Disable printing */
 @media print { body { display: none !important; } }
 
-/* Main Container: Fixed height to prevent vertical expansion */
+/* Modified Container: Wider on desktop to fit 3 items */
 .container { 
     width: 100%; 
     max-width: 350px; 
@@ -44,11 +41,12 @@ html, body {
     text-align: center; 
     box-sizing: border-box;
 }
+@media (min-width: 768px) {
+    .container { max-width: 1000px; }
+}
 
-/* Security: Block pointer events on images */
 img { pointer-events: none; -webkit-user-drag: none; }
 
-/* --- ZEN HEADER --- */
 .main-heading { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: bold; margin: 0; white-space: nowrap; letter-spacing: 0.5px; }
 .ay-text { font-size: 0.7rem; font-weight: 400; color: #777; margin: 0; }
 .header-line { width: 50px; height: 2.5px; background: var(--zen-maroon); margin: 4px auto 6px auto; }
@@ -64,7 +62,6 @@ img { pointer-events: none; -webkit-user-drag: none; }
     text-transform: uppercase;
 }
 
-/* --- SECURE SLIDER WRAP --- */
 .slider-wrap { 
     position: relative; 
     background: #fff; 
@@ -73,14 +70,14 @@ img { pointer-events: none; -webkit-user-drag: none; }
     overflow: hidden; 
     border-top: 3px solid var(--zen-maroon); 
     touch-action: pan-y;
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
-/* Hide scrollbars for Chrome/Safari */
 .slider-wrap::-webkit-scrollbar { display: none; }
 
 .slider { display: flex; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
 
+/* Modified Slide: 100% on mobile, 33.33% on desktop */
 .slide { 
     min-width: 100%; 
     padding: 20px 15px; 
@@ -89,10 +86,12 @@ img { pointer-events: none; -webkit-user-drag: none; }
     flex-direction: column; 
     align-items: center; 
     position: relative;
-    overflow: hidden; /* Lock internal slide content */
+    overflow: hidden;
+}
+@media (min-width: 768px) {
+    .slide { min-width: 33.333%; }
 }
 
-/* Navigation Buttons */
 .nav-btn {
     position: absolute; top: 50%; transform: translateY(-50%);
     background: rgba(255, 255, 255, 0.9); border: none; width: 32px; height: 32px;
@@ -106,23 +105,19 @@ img { pointer-events: none; -webkit-user-drag: none; }
 
 .corner-logo { position: absolute; top: 10px; right: 10px; width: 35px; height: 35px; background-size: contain; background-repeat: no-repeat; background-position: center; z-index: 5; opacity: 0.9; }
 
-/* Image Frame */
 .frame { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--zen-gold); position: relative; margin-bottom: 12px; background: #fff; }
 .frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
 .frame::after { content: '\f1b0'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; bottom: -2px; right: 5px; font-size: 1rem; background: #fff; color: var(--zen-gold); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--zen-gold); }
 
-/* Typography */
 .name { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; margin: 0; letter-spacing: 0.5px; }
 .class-info { font-size: 0.8rem; font-weight: 600; color: var(--zen-maroon); margin-top: 2px; text-transform: uppercase; }
 .dept-info { font-size: 0.7rem; font-weight: 400; color: #666; margin-bottom: 10px; }
 .pos { background: var(--zen-blue); color: #fff; padding: 4px 14px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; }
 
-/* Footer Button */
 .btn-portal { margin-top: 15px; }
 .btn-portal a { background: var(--zen-blue); color: #fff; text-decoration: none; padding: 8px 20px; border-radius: 6px; font-weight: 400; font-size: 11px; letter-spacing: 1px; transition: 0.3s; }
 .btn-portal a:hover { background: var(--zen-maroon); }
 
-/* Loading State */
 .skeleton { width: 100%; height: 280px; background: #eee; border-radius: 12px; animation: pulse 1.5s infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 </style>
@@ -147,8 +142,6 @@ img { pointer-events: none; -webkit-user-drag: none; }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 <script>
-/** * SECURITY: Disable DevTools and Screenshot Shortcuts 
- */
 document.addEventListener('keydown', function(e) {
     if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && [73, 74, 67].includes(e.keyCode)) || (e.ctrlKey && e.keyCode == 85)) {
         e.preventDefault(); return false;
@@ -171,13 +164,26 @@ const gU = u => {
     return m ? `https://drive.google.com/thumbnail?id=${m[0]}&sz=w600` : u;
 };
 
-function updateSlide() { document.getElementById('sd').style.transform = `translateX(-${cur * 100}%)`; }
+// Modified updateSlide for responsive percentages
+function updateSlide() { 
+    const step = window.innerWidth >= 768 ? 33.333 : 100;
+    document.getElementById('sd').style.transform = `translateX(-${cur * step}%)`; 
+}
+
 function moveSlide(dir) { 
     if (ttl === 0) return;
-    cur = (cur + dir + ttl) % ttl; 
+    // Calculate limit so we don't slide into empty space on desktop
+    const visibleCount = window.innerWidth >= 768 ? 3 : 1;
+    const maxIndex = Math.max(0, ttl - visibleCount);
+    
+    cur += dir;
+    if (cur < 0) cur = maxIndex;
+    else if (cur > maxIndex) cur = 0;
+    
     updateSlide(); 
     resetTimer(); 
 }
+
 function resetTimer() { clearInterval(slideInterval); slideInterval = setInterval(() => { moveSlide(1); }, 5000); }
 
 function initTouch() {
@@ -222,6 +228,7 @@ async function init() {
         document.getElementById('loading').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
         
+        window.addEventListener('resize', updateSlide);
         initTouch(); resetTimer();
     } catch(e) { console.error("Database Connection Failed", e); }
 }

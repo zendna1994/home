@@ -7,17 +7,24 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-:root { --blue: #23365D; --maroon: #6C232E; --gold: #D4A64A; --light: #F4F6F9; }
-/* Add this to your <style> section */
-.slider-wrap {
-    scrollbar-width: none; /* For Firefox */
-    -ms-overflow-style: none; /* For Internet Explorer/Edge */
+:root { --zen-blue: #23365D; --zen-maroon: #6C232E; --zen-gold: #D4A64A; --zen-light: #F4F6F9; }
+
+/* GLOBAL LOCK: Prevents any up/down or side scrolling on the page */
+html, body { 
+    margin: 0; 
+    padding: 0;
+    height: 100%; 
+    width: 100%;
+    overflow: hidden; 
+    font-family: 'Poppins', sans-serif; 
+    background: var(--zen-light); 
+    color: var(--zen-blue); 
+    display: flex; 
+    justify-content: center; 
+    align-items: flex-start;
 }
 
-.slider-wrap::-webkit-scrollbar {
-    display: none; /* For Chrome, Safari, and Opera */
-}
-/* Security: Prevent text selection and touch callouts */
+/* Security: Prevent text selection and long-press menus */
 * {
     -webkit-user-select: none;
     -moz-user-select: none;
@@ -26,64 +33,97 @@
     -webkit-touch-callout: none;
 }
 
-body { margin: 0; font-family: 'Poppins', sans-serif; background: var(--light); color: var(--blue); display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding-top: 10px; }
-
 /* Security: Disable printing */
 @media print { body { display: none !important; } }
 
-.container { width: 100%; max-width: 350px; padding: 5px; text-align: center; }
+/* Main Container: Fixed height to prevent vertical expansion */
+.container { 
+    width: 100%; 
+    max-width: 350px; 
+    padding: 10px 5px; 
+    text-align: center; 
+    box-sizing: border-box;
+}
 
 /* Security: Block pointer events on images */
 img { pointer-events: none; -webkit-user-drag: none; }
 
-/* --- COMPACT PROFESSIONAL HEADER --- */
+/* --- ZEN HEADER --- */
 .main-heading { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: bold; margin: 0; white-space: nowrap; letter-spacing: 0.5px; }
 .ay-text { font-size: 0.7rem; font-weight: 400; color: #777; margin: 0; }
-.header-line { width: 50px; height: 2.5px; background: var(--maroon); margin: 4px auto 6px auto; }
+.header-line { width: 50px; height: 2.5px; background: var(--zen-maroon); margin: 4px auto 6px auto; }
 
 .zalc-name-title { 
     font-family: 'Playfair Display', serif; 
     font-size: 1.8rem; 
     font-weight: 400;
-    color: var(--blue); 
+    color: var(--zen-blue); 
     margin: 0 0 10px 0; 
     line-height: 1; 
     letter-spacing: 2px;
     text-transform: uppercase;
 }
 
-/* --- COMPACT SLIDER --- */
-.slider-wrap { position: relative; background: #fff; border-radius: 12px; box-shadow: 0 5px 15px rgba(35,54,93,0.1); overflow: hidden; border-top: 3px solid var(--maroon); touch-action: pan-y; }
-.slider { display: flex; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
-.slide { min-width: 100%; padding: 25px 15px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; position: relative; }
+/* --- SECURE SLIDER WRAP --- */
+.slider-wrap { 
+    position: relative; 
+    background: #fff; 
+    border-radius: 12px; 
+    box-shadow: 0 5px 15px rgba(35,54,93,0.1); 
+    overflow: hidden; 
+    border-top: 3px solid var(--zen-maroon); 
+    touch-action: pan-y;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Edge */
+}
+/* Hide scrollbars for Chrome/Safari */
+.slider-wrap::-webkit-scrollbar { display: none; }
 
+.slider { display: flex; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+
+.slide { 
+    min-width: 100%; 
+    padding: 20px 15px; 
+    box-sizing: border-box; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    position: relative;
+    overflow: hidden; /* Lock internal slide content */
+}
+
+/* Navigation Buttons */
 .nav-btn {
     position: absolute; top: 50%; transform: translateY(-50%);
-    background: rgba(255, 255, 255, 0.8); border: none; width: 30px; height: 30px;
-    border-radius: 50%; color: var(--blue); cursor: pointer; z-index: 10;
+    background: rgba(255, 255, 255, 0.9); border: none; width: 32px; height: 32px;
+    border-radius: 50%; color: var(--zen-blue); cursor: pointer; z-index: 10;
     display: none; align-items: center; justify-content: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.3s;
 }
-.nav-btn:hover { background: var(--maroon); color: #fff; }
+.nav-btn:hover { background: var(--zen-maroon); color: #fff; }
 .prev { left: 5px; } .next { right: 5px; }
-
 @media (min-width: 768px) { .nav-btn { display: flex; } }
 
 .corner-logo { position: absolute; top: 10px; right: 10px; width: 35px; height: 35px; background-size: contain; background-repeat: no-repeat; background-position: center; z-index: 5; opacity: 0.9; }
 
-.frame { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--gold); position: relative; margin-bottom: 12px; background: #fff; }
+/* Image Frame */
+.frame { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--zen-gold); position: relative; margin-bottom: 12px; background: #fff; }
 .frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-.frame::after { content: '\f1b0'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; bottom: -2px; right: 5px; font-size: 1rem; background: #fff; color: var(--gold); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--gold); }
+.frame::after { content: '\f1b0'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; bottom: -2px; right: 5px; font-size: 1rem; background: #fff; color: var(--zen-gold); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--zen-gold); }
 
+/* Typography */
 .name { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; margin: 0; letter-spacing: 0.5px; }
-.class-info { font-size: 0.8rem; font-weight: 600; color: var(--maroon); margin-top: 2px; text-transform: uppercase; }
+.class-info { font-size: 0.8rem; font-weight: 600; color: var(--zen-maroon); margin-top: 2px; text-transform: uppercase; }
 .dept-info { font-size: 0.7rem; font-weight: 400; color: #666; margin-bottom: 10px; }
-.pos { background: var(--blue); color: #fff; padding: 4px 14px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; }
+.pos { background: var(--zen-blue); color: #fff; padding: 4px 14px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; }
 
+/* Footer Button */
 .btn-portal { margin-top: 15px; }
-.btn-portal a { background: var(--blue); color: #fff; text-decoration: none; padding: 8px 20px; border-radius: 6px; font-weight: 400; font-size: 11px; letter-spacing: 1px; }
+.btn-portal a { background: var(--zen-blue); color: #fff; text-decoration: none; padding: 8px 20px; border-radius: 6px; font-weight: 400; font-size: 11px; letter-spacing: 1px; transition: 0.3s; }
+.btn-portal a:hover { background: var(--zen-maroon); }
 
-.skeleton { width: 100%; height: 250px; background: #eee; border-radius: 12px; animation: pulse 1.5s infinite; }
+/* Loading State */
+.skeleton { width: 100%; height: 280px; background: #eee; border-radius: 12px; animation: pulse 1.5s infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 </style>
 </head>
@@ -107,13 +147,16 @@ img { pointer-events: none; -webkit-user-drag: none; }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 <script>
-// --- SECURITY SCRIPT ---
+/** * SECURITY: Disable DevTools and Screenshot Shortcuts 
+ */
 document.addEventListener('keydown', function(e) {
-    if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74 || e.keyCode == 67)) || (e.ctrlKey && e.keyCode == 85)) {
+    if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && [73, 74, 67].includes(e.keyCode)) || (e.ctrlKey && e.keyCode == 85)) {
         e.preventDefault(); return false;
     }
 });
-document.addEventListener('keyup', function(e) { if (e.key == "PrintScreen") { navigator.clipboard.writeText(""); alert('Screenshots disabled.'); } });
+document.addEventListener('keyup', function(e) { 
+    if (e.key == "PrintScreen") { navigator.clipboard.writeText(""); alert('Screenshots disabled.'); } 
+});
 
 const M_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVJQvFnPF1VyjviyayOG3_amxou7SLiM2KniqdxOAGy-GTySJtBgxWvlevoKa8zqd3UwT7dACQYm9I/pub?gid=0&single=true&output=csv";
 const I_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVJQvFnPF1VyjviyayOG3_amxou7SLiM2KniqdxOAGy-GTySJtBgxWvlevoKa8zqd3UwT7dACQYm9I/pub?gid=635742688&single=true&output=csv";
@@ -129,7 +172,12 @@ const gU = u => {
 };
 
 function updateSlide() { document.getElementById('sd').style.transform = `translateX(-${cur * 100}%)`; }
-function moveSlide(dir) { cur = (cur + dir + ttl) % ttl; updateSlide(); resetTimer(); }
+function moveSlide(dir) { 
+    if (ttl === 0) return;
+    cur = (cur + dir + ttl) % ttl; 
+    updateSlide(); 
+    resetTimer(); 
+}
 function resetTimer() { clearInterval(slideInterval); slideInterval = setInterval(() => { moveSlide(1); }, 5000); }
 
 function initTouch() {
@@ -148,18 +196,21 @@ async function init() {
         const [iR, mR] = await Promise.all([fetch(I_CSV), fetch(M_CSV)]);
         const iD = (Papa.parse(await iR.text(), {header:true})).data[0];
         const mD = (Papa.parse(await mR.text(), {header:true})).data;
+        
         document.getElementById('ay').innerText = iD["Academic Year"] || "";
         document.getElementById('zalc-title').innerText = iD["ZALC Name"] || "";
         logoUrl = gU(iD["ZALC Logo"]);
+        
         const s = document.getElementById('sd');
         const vM = mD.filter(m => m.Name && m.Name !== "");
         ttl = vM.length;
+
         vM.forEach(m => {
             const d = document.createElement('div');
             d.className = 'slide';
             d.innerHTML = `
                 <div class="corner-logo" style="background-image: url('${logoUrl}')"></div>
-                <div class="frame"><img src="${gU(m["Photo URL"])}" onmousedown="return false;" onerror="this.src='https://via.placeholder.com/110?text=Member'"></div>
+                <div class="frame"><img src="${gU(m["Photo URL"])}" onmousedown="return false;" onerror="this.src='https://via.placeholder.com/110?text=Profile'"></div>
                 <div class="name">${m.Name || ""}</div>
                 <div class="class-info">${m.Class || ""}</div>
                 <div class="dept-info">${m["Dept No"] ? `[ ${m["Dept No"]} ]` : ""}</div>
@@ -167,10 +218,12 @@ async function init() {
             `;
             s.appendChild(d);
         });
+
         document.getElementById('loading').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
+        
         initTouch(); resetTimer();
-    } catch(e) { console.error(e); }
+    } catch(e) { console.error("Database Connection Failed", e); }
 }
 init();
 </script>

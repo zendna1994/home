@@ -33,7 +33,6 @@ html, body {
 
 @media print { body { display: none !important; } }
 
-/* Modified Container: Wider on desktop to fit 3 items */
 .container { 
     width: 100%; 
     max-width: 350px; 
@@ -77,7 +76,6 @@ img { pointer-events: none; -webkit-user-drag: none; }
 
 .slider { display: flex; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
 
-/* Modified Slide: 100% on mobile, 33.33% on desktop */
 .slide { 
     min-width: 100%; 
     padding: 20px 15px; 
@@ -164,7 +162,6 @@ const gU = u => {
     return m ? `https://drive.google.com/thumbnail?id=${m[0]}&sz=w600` : u;
 };
 
-// Modified updateSlide for responsive percentages
 function updateSlide() { 
     const step = window.innerWidth >= 768 ? 33.333 : 100;
     document.getElementById('sd').style.transform = `translateX(-${cur * step}%)`; 
@@ -172,14 +169,11 @@ function updateSlide() {
 
 function moveSlide(dir) { 
     if (ttl === 0) return;
-    // Calculate limit so we don't slide into empty space on desktop
     const visibleCount = window.innerWidth >= 768 ? 3 : 1;
     const maxIndex = Math.max(0, ttl - visibleCount);
-    
     cur += dir;
     if (cur < 0) cur = maxIndex;
     else if (cur > maxIndex) cur = 0;
-    
     updateSlide(); 
     resetTimer(); 
 }
@@ -200,15 +194,24 @@ function initTouch() {
 async function init() {
     try {
         const [iR, mR] = await Promise.all([fetch(I_CSV), fetch(M_CSV)]);
-        const iD = (Papa.parse(await iR.text(), {header:true})).data[0];
-        const mD = (Papa.parse(await mR.text(), {header:true})).data;
+        const iDataAll = (Papa.parse(await iR.text(), {header:true})).data;
+        const mDataAll = (Papa.parse(await mR.text(), {header:true})).data;
         
-        document.getElementById('ay').innerText = iD["Academic Year"] || "";
+        // --- ACADEMIC YEAR LOGIC ---
+        const currentYear = new Date().getFullYear();
+        const nextAY = `${currentYear}-${currentYear + 1}`;
+        
+        // Find config matching next academic year, or fallback to the latest row
+        let iD = iDataAll.find(row => row["Academic Year"] === nextAY) || iDataAll[iDataAll.length - 1];
+        const selectedAY = iD["Academic Year"];
+
+        document.getElementById('ay').innerText = selectedAY;
         document.getElementById('zalc-title').innerText = iD["ZALC Name"] || "";
         logoUrl = gU(iD["ZALC Logo"]);
         
         const s = document.getElementById('sd');
-        const vM = mD.filter(m => m.Name && m.Name !== "");
+        // Filter members strictly by the selected Academic Year
+        const vM = mDataAll.filter(m => m.Name && m.Name !== "" && m["Academic Year"] === selectedAY);
         ttl = vM.length;
 
         vM.forEach(m => {

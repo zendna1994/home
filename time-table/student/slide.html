@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZEN - DNA | Academic Calendar</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --blue: #23365D; --maroon: #6C232E; --gold: #D4A64A; --bg: #F4F6F9; --white: #FFFFFF; }
+        
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; padding: 10px; color: #333; overflow-x: hidden; }
+        .container { max-width: 500px; margin: auto; }
+
+        /* TABS DESIGN */
+        .tabs { 
+            display: flex; background: #e0e4eb; padding: 5px; border-radius: 15px; 
+            margin-bottom: 20px; position: relative; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .tab-btn { 
+            flex: 1; padding: 10px; border-radius: 12px; border: none; background: transparent; 
+            cursor: pointer; font-weight: 600; font-size: 13px; transition: all 0.3s ease; color: var(--blue); z-index: 2;
+        }
+        .tab-btn.active { background: var(--white); color: var(--maroon); box-shadow: 0 4px 10px rgba(0,0,0,0.1); transform: scale(1.02); }
+
+        /* CALENDAR VIEW */
+        #calendar-view { 
+            background: var(--white); border-radius: 20px; padding: 15px; 
+            box-shadow: 0 10px 30px rgba(35,54,93,0.1); border-top: 5px solid var(--maroon);
+            animation: slideUp 0.5s ease-out;
+        }
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .month-title { font-family: 'Playfair Display'; color: var(--blue); font-size: 1.2rem; margin: 0; }
+        
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .day-name { font-weight: 700; font-size: 10px; color: var(--gold); text-align: center; padding-bottom: 5px; text-transform: uppercase; }
+        
+        .cell { 
+            height: 85px; border-radius: 10px; background: var(--bg); border: 1px solid rgba(0,0,0,0.03); 
+            display: flex; flex-direction: column; overflow: hidden; position: relative;
+        }
+        .cell.holiday { background: #fee2e2; }
+        .cell.not-current { opacity: 0.2; }
+        
+        .date-num { font-size: 11px; font-weight: 700; padding: 4px 6px; color: var(--blue); }
+        .day-order { 
+            position: absolute; top: 4px; right: 4px; font-size: 8px; 
+            background: var(--maroon); color: #fff; padding: 1px 4px; border-radius: 4px; 
+        }
+
+        /* MICRO SCROLL AREA INSIDE DATE */
+        .cell-content { 
+            flex-grow: 1; overflow-y: auto; padding: 0 4px 4px 4px; 
+            scrollbar-width: none; -ms-overflow-style: none; 
+        }
+        .cell-content::-webkit-scrollbar { display: none; }
+        .mini-event { 
+            font-size: 7.5px; line-height: 1.1; margin-bottom: 3px; 
+            padding: 2px; border-radius: 3px; background: rgba(212, 166, 74, 0.2);
+            color: var(--maroon); font-weight: 500;
+        }
+        .mini-reason { font-size: 7px; color: #666; font-style: italic; }
+
+        /* LIST VIEW */
+        #list-view { display: none; animation: fadeIn 0.5s ease-in; }
+        .month-card { 
+            background: var(--white); border-radius: 20px; margin-bottom: 20px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06); border-left: 5px solid var(--blue);
+            max-height: 400px; display: flex; flex-direction: column;
+        }
+        .month-card-header { 
+            padding: 15px; background: var(--blue); color: #fff; 
+            border-radius: 0 15px 0 0; font-family: 'Playfair Display'; font-size: 1.1rem;
+        }
+        .month-list-scroll { overflow-y: auto; padding: 10px; }
+        .list-item { 
+            display: flex; gap: 12px; padding: 12px; border-bottom: 1px solid #f0f0f0; 
+            align-items: center; transition: 0.3s;
+        }
+        .list-item:hover { background: var(--bg); }
+        .date-circle { 
+            min-width: 40px; height: 40px; background: var(--gold); border-radius: 50%; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            color: var(--blue); font-weight: 700; font-size: 12px; line-height: 1;
+        }
+        .date-circle span { font-size: 8px; text-transform: uppercase; font-weight: 400; }
+        
+        .list-info { flex: 1; }
+        .list-event { font-size: 12px; font-weight: 600; color: var(--blue); margin-bottom: 2px; }
+        .list-sub { font-size: 10px; color: #777; }
+        .order-tag { 
+            font-size: 9px; background: var(--maroon); color: #fff; 
+            padding: 2px 8px; border-radius: 20px; float: right; 
+        }
+
+        /* ANIMATIONS */
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .loader { text-align: center; padding: 40px; color: var(--blue); }
+        .spinner { 
+            width: 30px; height: 30px; border: 3px solid #ddd; border-top-color: var(--maroon); 
+            border-radius: 50%; animation: spin 1s infinite linear; margin: auto;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="tabs">
+        <button class="tab-btn active" id="btn-cal" onclick="switchTab('calendar')">Calendar</button>
+        <button class="tab-btn" id="btn-list" onclick="switchTab('list')">Events List</button>
+    </div>
+
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="font-size: 12px; margin-top: 10px; text-align:center;">Synchronizing with Sheet...</p>
+    </div>
+
+    <div id="calendar-view">
+        <div class="cal-header">
+            <button class="tab-btn" style="flex:none; width:40px;" onclick="changeMonth(-1)">❮</button>
+            <h3 id="monthTitle" class="month-title"></h3>
+            <button class="tab-btn" style="flex:none; width:40px;" onclick="changeMonth(1)">❯</button>
+        </div>
+        <div class="cal-grid" id="calendarGrid"></div>
+    </div>
+
+    <div id="list-view">
+        <div id="listContainer"></div>
+    </div>
+</div>
+
+<script>
+    const dayInfoUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQSlPaldSsB6LS1eDDZO9xSnmmcJcQZBGwI9XfvyEcrhnielFa97O7S-fERMBipoRBSBbUDAhN67kw7/pub?gid=0&single=true&output=csv";
+    
+    let rawData = [];
+    let curDate = new Date(2025, 10, 1); // Nov 2025
+
+    async function init() {
+        try {
+            const res = await fetch(dayInfoUrl);
+            const csv = await res.text();
+            rawData = parseCSV(csv);
+            document.getElementById('loader').style.display = 'none';
+            render();
+        } catch (e) { console.error(e); }
+    }
+
+    function parseCSV(text) {
+        const rows = text.split('\n').slice(1);
+        return rows.map(r => {
+            const c = r.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+            return {
+                date: c[0],
+                working: c[2],
+                order: c[3],
+                event: c[5]?.replace(/"/g, ''),
+                reason: c[6]?.replace(/"/g, '')
+            };
+        });
+    }
+
+    function render() {
+        renderCalendar();
+        renderList();
+    }
+
+    function renderCalendar() {
+        const grid = document.getElementById('calendarGrid');
+        grid.innerHTML = '';
+        document.getElementById('monthTitle').innerText = curDate.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+        ['S','M','T','W','T','F','S'].forEach(d => grid.innerHTML += `<div class="day-name">${d}</div>`);
+
+        const first = new Date(curDate.getFullYear(), curDate.getMonth(), 1).getDay();
+        const total = new Date(curDate.getFullYear(), curDate.getMonth() + 1, 0).getDate();
+
+        for(let i=0; i<first; i++) grid.innerHTML += `<div class="cell not-current"></div>`;
+
+        for(let d=1; d<=total; d++) {
+            const dStr = `${d.toString().padStart(2,'0')}-${(curDate.getMonth()+1).toString().padStart(2,'0')}-${curDate.getFullYear()}`;
+            const info = rawData.find(r => r.date === dStr);
+            const isSun = new Date(curDate.getFullYear(), curDate.getMonth(), d).getDay() === 0;
+
+            grid.innerHTML += `
+                <div class="cell ${info?.working === 'No' || isSun ? 'holiday' : ''}">
+                    <span class="date-num">${d}</span>
+                    ${info?.order ? `<span class="day-order">${info.order}</span>` : ''}
+                    <div class="cell-content">
+                        ${info?.event ? `<div class="mini-event">${info.event}</div>` : ''}
+                        ${info?.reason ? `<div class="mini-reason">${info.reason}</div>` : ''}
+                    </div>
+                </div>`;
+        }
+    }
+
+    function renderList() {
+        const container = document.getElementById('listContainer');
+        container.innerHTML = '';
+        
+        // Group by Month
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const grouped = {};
+
+        rawData.filter(r => r.event || r.working === 'No').forEach(r => {
+            const mIdx = parseInt(r.date.split('-')[1]) - 1;
+            const mName = months[mIdx] + " " + r.date.split('-')[2];
+            if(!grouped[mName]) grouped[mName] = [];
+            grouped[mName].push(r);
+        });
+
+        for(const [month, events] of Object.entries(grouped)) {
+            let html = `
+                <div class="month-card">
+                    <div class="month-card-header">${month}</div>
+                    <div class="month-list-scroll">
+            `;
+            events.forEach(e => {
+                const day = e.date.split('-')[0];
+                html += `
+                    <div class="list-item">
+                        <div class="date-circle">${day}<span>Day</span></div>
+                        <div class="list-info">
+                            ${e.order ? `<span class="order-tag">Order ${e.order}</span>` : ''}
+                            <div class="list-event">${e.event || e.reason}</div>
+                            <div class="list-sub">${e.event && e.reason ? e.reason : ''}</div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += `</div></div>`;
+            container.innerHTML += html;
+        }
+    }
+
+    function switchTab(t) {
+        document.getElementById('calendar-view').style.display = t === 'calendar' ? 'block' : 'none';
+        document.getElementById('list-view').style.display = t === 'list' ? 'block' : 'none';
+        document.getElementById('btn-cal').classList.toggle('active', t === 'calendar');
+        document.getElementById('btn-list').classList.toggle('active', t === 'list');
+    }
+
+    function changeMonth(dir) {
+        curDate.setMonth(curDate.getMonth() + dir);
+        renderCalendar();
+    }
+
+    init();
+</script>
+</body>
+</html>

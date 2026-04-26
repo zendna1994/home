@@ -20,7 +20,7 @@
         .tab-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 12px; color: var(--zen-blue); transition: 0.3s; }
         .tab-btn.active { background: var(--white); color: var(--zen-maroon); box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
 
-        .main-card { background: var(--white); border-radius: 20px; box-shadow: 0 10px 30px rgba(35, 54, 93, 0.1); overflow: hidden; border-top: 4px solid var(--zen-maroon); }
+        .main-card { background: var(--white); border-radius: 20px; box-shadow: 0 10px 30px rgba(35,54,93,0.1); overflow: hidden; border-top: 4px solid var(--zen-maroon); }
         .month-bar { padding: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; background: #fff; }
         .month-bar h2 { font-family: 'Playfair Display'; font-size: clamp(1rem, 4vw, 1.3rem); margin: 0; color: var(--zen-blue); }
         .nav-arrow { background: var(--zen-blue); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; }
@@ -57,44 +57,45 @@
         .cell-scroll::-webkit-scrollbar-track { background: transparent; }
         .cell-scroll::-webkit-scrollbar-thumb { background: var(--zen-gold); border-radius: 10px; }
 
-        .detail-area { background: var(--zen-light); padding: 15px; border-top: 2px solid var(--zen-gold); min-height: 90px; }
+        .detail-area { background: var(--zen-light); padding: 15px; border-top: 2px solid var(--zen-gold); min-height: 80px; }
         .detail-h { font-size: 13px; font-weight: 800; color: var(--zen-blue); margin-bottom: 4px; }
         .detail-p { font-size: 11px; color: var(--zen-maroon); line-height: 1.4; margin: 0; }
 
         #list-view { display: none; height: 500px; overflow-y: auto; padding: 10px; }
         .list-card { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #f0f0f0; background: #fff; margin-bottom: 10px; border-radius: 15px; }
-        .list-card.is-today { background: #fffdf5; border: 1px solid var(--zen-gold); }
+        .list-card.is-today { background: #fffdf5; border: 1.5px solid var(--zen-gold); }
         
         .badge { min-width: 48px; height: 48px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid var(--zen-gold); }
         .date-badge { background: var(--zen-blue); color: var(--zen-gold); margin-right: 12px; }
-        .date-badge .d { font-size: 18px; font-weight: 700; line-height: 1; }
+        .date-badge .d { font-size: 18px; font-weight: 800; line-height: 1; }
         .date-badge .w { font-size: 7px; text-transform: uppercase; }
 
         .list-info { flex: 1; padding: 0 15px; }
-        .list-event { font-size: 11px; font-weight: 700; color: var(--zen-blue); }
-        .list-sub { font-size: 9px; color: var(--zen-maroon); margin-top: 3px; font-style: italic; }
+        .list-event { font-size: 12px; font-weight: 700; color: var(--zen-blue); line-height: 1.4; }
+        .list-sub { font-size: 10px; color: var(--zen-maroon); margin-top: 3px; font-style: italic; }
 
         .order-badge { background: var(--white); color: var(--zen-blue); min-width: 50px; }
-        .order-badge .o-lbl { font-size: 7px; font-weight: 800; opacity: 0.8; }
+        .order-badge .o-lbl { font-size: 6px; font-weight: 800; opacity: 0.8; }
         .order-badge .o-val { font-size: 14px; font-weight: 900; color: var(--zen-maroon); }
 
-        /* PORTAL BUTTON - ICON REMOVED AS REQUESTED */
         .btn-wrap { margin-top: 20px; text-align: center; padding-bottom: 20px; }
         .btn-portal { 
             display: inline-block;
             background: var(--zen-blue); 
             color: #fff; 
-            padding: 10px 20px; 
-            border-radius: 8px; 
+            padding: 12px 25px; 
+            border-radius: 10px; 
             text-decoration: none; 
-            font-size: 12px; 
+            font-size: 13px; 
             font-weight: 600; 
             transition: 0.3s; 
+            border: 1px solid var(--zen-gold);
             box-shadow: 0 4px 15px rgba(35, 54, 93, 0.2);
         }
         .btn-portal:hover { 
             background: var(--zen-maroon); 
             transform: translateY(-2px); 
+            box-shadow: 0 6px 20px rgba(108, 35, 46, 0.3);
         }
     </style>
 </head>
@@ -204,7 +205,7 @@
 
     function setDetail(info, date) {
         const area = document.getElementById('detailArea');
-        if(!info) { area.innerHTML = `<div class="detail-h">${date}</div><p class="detail-p">No specific data recorded.</p>`; return; }
+        if(!info) { area.innerHTML = `<div class="detail-h">${date}</div><p class="detail-p">No Data.</p>`; return; }
         area.innerHTML = `
             <div class="detail-h"><i class="fa-solid fa-circle-info"></i> ${date} | ${info.working === 'Yes' ? 'Working Day' : 'Holiday'}</div>
             <p class="detail-p">
@@ -230,16 +231,18 @@
             row.className = `list-card ${isToday ? 'is-today' : ''}`;
             if(isToday) row.id = "today-list-scroll";
             
+            const eventText = info?.event || info?.reason || "";
+            
             row.innerHTML = `
                 <div class="badge date-badge">
                     <div class="d">${d}</div>
                     <div class="w">${dateObj.toLocaleString('default', {weekday:'short'})}</div>
                 </div>
                 <div class="list-info">
-                    <div class="list-event">${info?.event || info?.reason || (info?.working === 'Yes' ? 'Regular College Day' : 'Holiday')}</div>
+                    <div class="list-event">${eventText}</div>
                     ${info?.event && info?.reason ? `<div class="list-sub">${info.reason}</div>` : ''}
                 </div>
-                ${info?.order ? `<div class="badge order-badge"><span class="o-lbl">ORDER</span><span class="o-val">${info.order}</span></div>` : ''}
+                ${info?.order ? `<div class="badge order-badge"><span class="o-lbl">ORDER</span><span class="o-val">${info.order}</span></div>` : '<div></div>'}
             `;
             cont.appendChild(row);
         }
@@ -249,10 +252,7 @@
         const dStr = `${today.getDate().toString().padStart(2,'0')}-${(today.getMonth()+1).toString().padStart(2,'0')}-${today.getFullYear()}`;
         const info = db.find(r => r.date === dStr);
         const cell = document.getElementById(`cell-${dStr}`);
-        if(cell) {
-            cell.classList.add('selected');
-            setDetail(info, dStr);
-        }
+        if(cell) { cell.classList.add('selected'); setDetail(info, dStr); }
     }
 
     function switchTab(t) {
@@ -268,10 +268,7 @@
         }
     }
 
-    function moveMonth(dir) {
-        curDate.setMonth(curDate.getMonth() + dir);
-        render();
-    }
+    function moveMonth(dir) { curDate.setMonth(curDate.getMonth() + dir); render(); }
 
     load();
 </script>

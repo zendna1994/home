@@ -3,70 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ZEN - DNA| Events</title>
+    <title>ZEN - DNA | Responsive Events</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root { --zen-blue: #23365D; --zen-maroon: #6C232E; --zen-gold: #D4A64A; --zen-light: #F4F6F9; }
-        body { margin:0; font-family: 'Poppins', sans-serif; background: transparent; overflow: hidden; }
-
-        .container { width: 100%; max-width: 350px; margin: auto; text-align: center; padding-top: 10px; }
-        h2 { font-family: 'Playfair Display', serif; color: var(--zen-blue); margin: 0 0 15px 0; font-size: 1.6rem; }
-        h2::after { content: ''; display: block; width: 40px; height: 3px; background: var(--zen-maroon); margin: 8px auto; }
-
-        .slider-frame { overflow: hidden; position: relative; border-radius: 20px; background: #fff; box-shadow: 0 10px 25px rgba(35, 54, 93, 0.12); cursor: grab; min-height: 200px; }
-        .slider-track { display: flex; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); will-change: transform; }
-        .slide { min-width: 100%; box-sizing: border-box; }
         
-        .card { text-align: left; background: #fff; position: relative; }
+        body { margin:0; font-family: 'Poppins', sans-serif; background: transparent; }
 
-        /* NO EVENTS STYLE */
-        .no-events { padding: 40px 20px; color: #666; font-size: 14px; text-align: center; }
-        .no-events-icon { font-size: 30px; margin-bottom: 10px; display: block; }
+        /* RESPONSIVE CONTAINER */
+        .container { 
+            width: 95%; 
+            max-width: 800px; 
+            margin: auto; 
+            text-align: center; 
+            padding-top: 10px; 
+        }
+        
+        h2 { 
+            font-family: 'Playfair Display', serif; 
+            color: var(--zen-blue); 
+            margin: 0 0 15px 0; 
+            font-size: clamp(1.2rem, 5vw, 1.6rem); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px; 
+        }
+        
+        .title-wrap { position: relative; margin-bottom: 25px; }
+        .title-wrap::after { 
+            content: ''; 
+            display: block; 
+            width: 40px; 
+            height: 3px; 
+            background: var(--zen-maroon); 
+            margin: 8px auto; 
+        }
 
-        .img-box { height: 210px; position: relative; background: #1a1a1a; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        /* SLIDER ADJUSTMENTS */
+        .slider-frame { 
+            overflow: hidden; 
+            position: relative; 
+            border-radius: 20px; 
+            background: #fff; 
+            box-shadow: 0 10px 25px rgba(35, 54, 93, 0.12); 
+            cursor: grab; 
+        }
+
+        .slider-track { display: flex; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+        
+        /* RESPONSIVE SLIDE WIDTH */
+        .slide { 
+            min-width: 100%; 
+            box-sizing: border-box; 
+        }
+
+        /* Responsive Grid for Desktop (If showing multiple cards) */
+        @media (min-width: 768px) {
+            .slide { min-width: 50%; } /* Shows 2 cards on desktop if you adjust track logic */
+        }
+
+        .card { text-align: left; background: #fff; position: relative; height: 100%; }
+
+        /* IMAGE BOX RESPONSIVENESS */
+        .img-box { 
+            height: 210px; 
+            position: relative; 
+            background: #1a1a1a; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            overflow: hidden; 
+        }
+        
+        @media (max-width: 480px) {
+            .img-box { height: 180px; }
+        }
+
         .bg-blur { position: absolute; width: 100%; height: 100%; object-fit: cover; filter: blur(12px); opacity: 0.4; z-index: 1; }
         .main-img { max-width: 100%; max-height: 100%; object-fit: contain; position: relative; z-index: 2; display: none; }
         .main-img.active { display: block; }
 
         .maroon-line { height: 4px; background: var(--zen-maroon); width: 100%; }
 
-        .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.25); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); font-weight: bold; pointer-events: auto; }
-        .arrow-left { left: 10px; } .arrow-right { right: 10px; }
+        .nav-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.25); color: white; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); font-weight: bold; }
 
-        .type-badge { position: absolute; top: 12px; left: 12px; background: rgba(255, 255, 255, 0.9); color: var(--zen-blue); padding: 4px 10px; font-size: 10px; font-weight: 700; border-radius: 50px; text-transform: uppercase; z-index: 5; }
-        .timer-badge { position: absolute; top: 12px; right: 12px; background: var(--zen-blue); color: #fff; padding: 4px 10px; font-size: 10px; font-weight: 600; border-radius: 6px; z-index: 5; }
+        .type-badge { position: absolute; top: 12px; left: 12px; background: rgba(255, 255, 255, 0.9); color: var(--zen-blue); padding: 4px 10px; font-size: 9px; font-weight: 700; border-radius: 50px; text-transform: uppercase; z-index: 5; }
+        
+        .timer-badge { 
+            position: absolute; top: 12px; right: 12px; background: var(--zen-blue); 
+            color: #fff; padding: 4px 10px; font-size: 9px; font-weight: 600; 
+            border-radius: 6px; z-index: 5; display: flex; align-items: center; gap: 5px; 
+        }
 
-        .content { padding: 18px; }
-        .title { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: bold; color: var(--zen-blue); margin-bottom: 6px; line-height: 1.2; }
-        .desc { font-size: 11px; color: #444; margin-bottom: 8px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .details { font-size: 10px; color: #666; margin-bottom: 3px; display: flex; align-items: center; gap: 5px; }
-        .venue { font-weight: 600; color: var(--zen-maroon); margin-top: 4px;}
+        .content { padding: clamp(12px, 4vw, 18px); }
+        .title { font-family: 'Playfair Display', serif; font-size: clamp(1rem, 4vw, 1.1rem); font-weight: bold; color: var(--zen-blue); margin-bottom: 8px; line-height: 1.2; }
+        .desc { font-size: clamp(10px, 3vw, 11px); color: #444; margin-bottom: 12px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        .details { font-size: 10px; color: #555; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; font-weight: 500; }
+        .details i { color: var(--zen-gold); width: 14px; text-align: center; }
 
-        .skeleton { height: 380px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 20px; }
-        @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-        .btn-wrap { margin-top: 15px; }
+        .btn-wrap { margin-top: 15px; padding-bottom: 15px; }
         .btn-wrap a { background: var(--zen-blue); color: #fff; padding: 8px 20px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 600; transition: 0.3s; display: inline-block; }
         
-        .live-text { color: #ff3b30; font-weight: 800; animation: blink 1s infinite; }
+        .skeleton { height: 380px; background: #eee; border-radius: 20px; }
+        .live-text { color: #ff3b30; font-weight: 800; animation: blink 1s infinite; display: flex; align-items: center; gap: 4px; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>Events</h2>
+    <div class="title-wrap">
+        <h2><i class="fa-solid fa-calendar-check"></i> Upcoming Events</h2>
+    </div>
+    
     <div id="loader" class="skeleton"></div>
     <div class="slider-frame" id="slider-frame" style="display:none;">
         <div class="slider-track" id="track"></div>
     </div>
     <div class="btn-wrap">
-        <a href="https://azbtweb.wixsite.com/zen-dna/events" target="_blank">Events Portal→</a>
+        <a href="https://azbtweb.wixsite.com/zen-dna/events" target="_blank">Events Portal <i class="fa-solid fa-arrow-right"></i></a>
     </div>
 </div>
 
 <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTxf_ijaWN5lfKCdAcRtyE9B_ahp7ta8YFhIqIVylNQmZXZpaVfeD7MZbPntZeS92IrXPCDLf0aB7my/pub?gid=0&single=true&output=csv";
+
+// Logic to handle window resizing for slider calculations
+let slideWidth = 0;
 
 function parseCSV(text) {
     const lines = text.split(/\r?\n/).filter(line => line.trim() !== "");
@@ -86,7 +152,6 @@ function parseDateTime(d, t, isEnd = false) {
     if(!d) return null;
     let timeStr = t ? t.trim() : (isEnd ? "23:59" : "00:00");
     if (timeStr.length <= 2) timeStr = timeStr.padStart(2, '0') + ":00";
-    if (timeStr.includes(":") && timeStr.split(":")[0].length === 1) timeStr = "0" + timeStr;
     const p = d.split("-");
     const dateObj = new Date(`${p[2]}-${p[1]}-${p[0]}T${timeStr}:00`);
     return isNaN(dateObj.getTime()) ? null : dateObj;
@@ -99,20 +164,17 @@ function getDriveImg(url) {
 }
 
 function updateTimerHtml(start, end) {
-    if(!start) return "Upcoming";
+    if(!start) return "<i class='fa-solid fa-clock'></i> Upcoming";
     const now = new Date();
-    if(start <= now && (!end || now <= end)) return "<span class='live-text'>🔴 LIVE NOW</span>";
+    if(start <= now && (!end || now <= end)) return "<span class='live-text'><i class='fa-solid fa-circle'></i> LIVE</span>";
     const diff = start - now;
     if(diff < 0) return "Started";
     const diffInDays = diff / (1000 * 60 * 60 * 24);
-    if (diffInDays >= 2) {
-        return `In ${Math.floor(diffInDays)} days`;
-    } else {
-        const h = Math.floor(diff/3600000);
-        const m = Math.floor((diff%3600000)/60000);
-        const s = Math.floor((diff%60000)/1000);
-        return `${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
-    }
+    if (diffInDays >= 2) return `<i class="fa-solid fa-calendar"></i> In ${Math.floor(diffInDays)} days`;
+    const h = Math.floor(diff/3600000);
+    const m = Math.floor((diff%3600000)/60000);
+    const s = Math.floor((diff%60000)/1000);
+    return `<i class="fa-solid fa-hourglass-half"></i> ${String(h).padStart(2,'0')}h ${String(m).padStart(2,'0')}m ${String(s).padStart(2,'0')}s`;
 }
 
 async function init() {
@@ -126,7 +188,6 @@ async function init() {
 
         let events = data.map(e => {
             const start = parseDateTime(e.Date, e.Start_Time, false);
-            // Logic: Use End_date if provided, otherwise use Date
             const endDateString = e.End_date || e.Date;
             const end = parseDateTime(endDateString, e.End_Time, true);
             return { ...e, start, end };
@@ -138,46 +199,38 @@ async function init() {
         frame.style.display = "block";
 
         if (events.length === 0) {
-            frame.innerHTML = `
-                <div class="no-events">
-                    <span class="no-events-icon">🗓️</span>
-                    <div>No events scheduled at the moment.<br>Kindly check back later.</div>
-                </div>`;
+            frame.innerHTML = `<div class="no-events"><i class="fa-regular fa-calendar-xmark"></i> No upcoming events.</div>`;
             return;
         }
 
         events.forEach((e, cardIdx) => {
             const imgLinks = (e.Invitation_Link || "").split("|").map(s => s.trim()).filter(s => s !== "");
             const images = imgLinks.map(link => getDriveImg(link));
-            const hasImages = images.length > 0;
             const safeID = (e.Event_ID || "evt"+cardIdx).replace(/[^a-zA-Z0-9]/g, "-");
 
             const slide = document.createElement("div");
             slide.className = "slide";
             slide.innerHTML = `
                 <div class="card">
-                    ${hasImages ? `
                     <div class="img-box">
-                        ${e.Event_Type ? `<div class="type-badge">${e.Event_Type}</div>` : ''}
+                        ${e.Event_Type ? `<div class="type-badge"><i class="fa-solid fa-tag"></i> ${e.Event_Type}</div>` : ''}
                         <div class="timer-badge" id="timer-${safeID}">--</div>
                         ${images.map((img, i) => `
                             <img src="${img}" class="bg-blur" style="display:${i===0?'block':'none'}">
                             <img src="${img}" class="main-img ${i===0?'active':''}" onerror="this.src='https://via.placeholder.com/400x210?text=ZEN+DNA'">
                         `).join("")}
                         ${images.length > 1 ? `
-                            <button class="nav-arrow arrow-left" onclick="event.stopPropagation(); changeInnerImg(${cardIdx}, -1)">❮</button>
-                            <button class="nav-arrow arrow-right" onclick="event.stopPropagation(); changeInnerImg(${cardIdx}, 1)">❯</button>
+                            <button class="nav-arrow arrow-left" onclick="event.stopPropagation(); changeInnerImg(${cardIdx}, -1)"><i class="fa-solid fa-chevron-left"></i></button>
+                            <button class="nav-arrow arrow-right" onclick="event.stopPropagation(); changeInnerImg(${cardIdx}, 1)"><i class="fa-solid fa-chevron-right"></i></button>
                         ` : ''}
-                    </div>` : ''}
+                    </div>
                     <div class="maroon-line"></div>
                     <div class="content">
                         <div class="title">${e.Event_Name || 'Event Update'}</div>
-                        ${e.Description ? `<div class="desc">${e.Description}</div>` : ''}
-                        <div class="details">
-                            <span>🗓️ ${e.Date}${e.End_date ? ' - ' + e.End_date : ''}</span>
-                            ${e.Start_Time ? `<span>| ⏰ ${e.Start_Time}</span>` : ''}
-                        </div>
-                        ${e.Venue ? `<div class="details venue">📍 ${e.Venue}</div>` : ''}
+                        <div class="desc">${e.Description || ''}</div>
+                        <div class="details"><i class="fa-solid fa-calendar-day"></i><span>${e.Date}</span></div>
+                        <div class="details"><i class="fa-solid fa-clock"></i><span>${e.Start_Time || '--'}</span></div>
+                        <div class="details"><i class="fa-solid fa-location-dot"></i><span>${e.Venue || 'TBA'}</span></div>
                     </div>
                 </div>`;
             track.appendChild(slide);
@@ -197,53 +250,21 @@ async function init() {
 }
 
 function initSliderLogic(count) {
-    if(count === 0) return;
     const frame = document.getElementById("slider-frame");
     const track = document.getElementById("track");
-    let isDragging = false, startX, currentTranslate = 0, prevTranslate = 0, currentIndex = 0;
+    let currentIndex = 0;
 
-    let autoSlide = setInterval(() => moveToIndex((currentIndex + 1) % count), 10000);
+    function updateWidth() { slideWidth = frame.offsetWidth; moveToIndex(currentIndex); }
+    window.addEventListener('resize', updateWidth);
+    updateWidth();
 
     function moveToIndex(idx) {
         currentIndex = idx;
-        currentTranslate = currentIndex * -frame.offsetWidth;
-        prevTranslate = currentTranslate;
-        track.style.transition = 'transform 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
-        track.style.transform = `translateX(${currentTranslate}px)`;
+        track.style.transform = `translateX(${-currentIndex * slideWidth}px)`;
     }
 
-    frame.addEventListener('mousedown', dragStart);
-    frame.addEventListener('touchstart', dragStart);
-    frame.addEventListener('mousemove', dragAction);
-    frame.addEventListener('touchmove', dragAction);
-    frame.addEventListener('mouseup', dragEnd);
-    frame.addEventListener('mouseleave', dragEnd);
-    frame.addEventListener('touchend', dragEnd);
-
-    function dragStart(e) {
-        clearInterval(autoSlide);
-        isDragging = true;
-        startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        track.style.transition = 'none';
-    }
-
-    function dragAction(e) {
-        if (!isDragging) return;
-        const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-        const diff = x - startX;
-        track.style.transform = `translateX(${prevTranslate + diff}px)`;
-    }
-
-    function dragEnd(e) {
-        if (!isDragging) return;
-        isDragging = false;
-        const x = e.type.includes('touchend') ? e.changedTouches[0].clientX : e.clientX;
-        const movedBy = x - startX;
-        if (movedBy < -50 && currentIndex < count - 1) currentIndex++;
-        if (movedBy > 50 && currentIndex > 0) currentIndex--;
-        moveToIndex(currentIndex);
-        autoSlide = setInterval(() => moveToIndex((currentIndex + 1) % count), 10000);
-    }
+    // Auto-slide logic
+    setInterval(() => { currentIndex = (currentIndex + 1) % count; moveToIndex(currentIndex); }, 8000);
 }
 
 window.changeInnerImg = function(cardIdx, dir) {

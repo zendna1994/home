@@ -3,154 +3,120 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>ZEN-DNA | ZALC Members</title>
+<title>AZ-BT | ZALC Members</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
-:root { --zen-blue: #23365D; --zen-maroon: #6C232E; --zen-gold: #D4A64A; --zen-light: #F4F6F9; }
+:root { --azbt-blue: #23365D; --azbt-maroon: #6C232E; --azbt-gold: #D4A64A; --azbt-light: #F4F6F9; }
 
 html, body { 
-    margin: 0; 
-    padding: 0;
-    height: 100%; 
-    width: 100%;
-    overflow: hidden; 
-    font-family: 'Poppins', sans-serif; 
-    background: var(--zen-light); 
-    color: var(--zen-blue); 
-    display: flex; 
-    justify-content: center; 
-    align-items: flex-start;
+    margin: 0; padding: 0; height: 100%; width: 100%;
+    overflow: hidden; font-family: 'Poppins', sans-serif; 
+    background: var(--azbt-light); color: var(--azbt-blue); 
+    display: flex; justify-content: center; align-items: center;
 }
 
-* {
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    -webkit-touch-callout: none;
-}
+* { -webkit-user-select: none; user-select: none; }
 
-@media print { body { display: none !important; } }
-
+/* FULLY FLEXIBLE CONTAINER */
 .container { 
-    width: 100%; 
-    max-width: 350px; 
-    padding: 10px 5px; 
+    width: 95%; 
+    max-width: 800px; 
+    margin: auto; 
     text-align: center; 
+    display: flex;
+    flex-direction: column;
+    /* Adapts to both mobile and desktop heights */
+    height: clamp(400px, 95vh, 650px);
+    padding: 10px 0;
     box-sizing: border-box;
 }
-@media (min-width: 768px) {
-    .container { max-width: 1000px; }
-}
 
-img { pointer-events: none; -webkit-user-drag: none; }
-
-.main-heading { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: bold; margin: 0; white-space: nowrap; letter-spacing: 0.5px; }
+.header-section { flex-shrink: 0; }
+.main-heading { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: bold; margin: 0; letter-spacing: 0.5px; }
 .ay-text { font-size: 0.7rem; font-weight: 400; color: #777; margin: 0; }
-.header-line { width: 50px; height: 2.5px; background: var(--zen-maroon); margin: 4px auto 6px auto; }
-
+.header-line { width: 50px; height: 2.5px; background: var(--azbt-maroon); margin: 4px auto 6px auto; }
 .zalc-name-title { 
-    font-family: 'Playfair Display', serif; 
-    font-size: 1.8rem; 
-    font-weight: 400;
-    color: var(--zen-blue); 
-    margin: 0 0 10px 0; 
-    line-height: 1; 
-    letter-spacing: 2px;
-    text-transform: uppercase;
+    font-family: 'Playfair Display', serif; font-size: clamp(1.4rem, 4vw, 1.8rem); 
+    font-weight: 400; color: var(--azbt-blue); margin: 0 0 10px 0; 
+    line-height: 1; letter-spacing: 2px; text-transform: uppercase;
 }
 
+/* SLIDER WRAP - FILLS MIDDLE SPACE */
 .slider-wrap { 
-    position: relative; 
-    background: #fff; 
-    border-radius: 12px; 
+    position: relative; background: #fff; border-radius: 12px; 
     box-shadow: 0 5px 15px rgba(35,54,93,0.1); 
-    overflow: hidden; 
-    border-top: 3px solid var(--zen-maroon); 
-    touch-action: pan-y;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+    overflow: hidden; border-top: 3px solid var(--azbt-maroon); 
+    flex-grow: 1; display: flex; flex-direction: column; min-height: 0;
 }
-.slider-wrap::-webkit-scrollbar { display: none; }
 
-.slider { display: flex; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); }
+.slider { display: flex; transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1); height: 100%; }
 
 .slide { 
-    min-width: 100%; 
-    padding: 20px 15px; 
-    box-sizing: border-box; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
-    position: relative;
-    overflow: hidden;
+    min-width: 100%; padding: 20px 15px; box-sizing: border-box; 
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative; overflow: hidden; height: 100%;
 }
-@media (min-width: 768px) {
-    .slide { min-width: 33.333%; }
-}
+@media (min-width: 768px) { .slide { min-width: 33.333%; } }
 
 .nav-btn {
     position: absolute; top: 50%; transform: translateY(-50%);
     background: rgba(255, 255, 255, 0.9); border: none; width: 32px; height: 32px;
-    border-radius: 50%; color: var(--zen-blue); cursor: pointer; z-index: 10;
+    border-radius: 50%; color: var(--azbt-blue); cursor: pointer; z-index: 10;
     display: none; align-items: center; justify-content: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.3s;
 }
-.nav-btn:hover { background: var(--zen-maroon); color: #fff; }
+.nav-btn:hover { background: var(--azbt-maroon); color: #fff; }
 .prev { left: 5px; } .next { right: 5px; }
 @media (min-width: 768px) { .nav-btn { display: flex; } }
 
-.corner-logo { position: absolute; top: 10px; right: 10px; width: 35px; height: 35px; background-size: contain; background-repeat: no-repeat; background-position: center; z-index: 5; opacity: 0.9; }
+.corner-logo { position: absolute; top: 10px; right: 10px; width: 40px; height: 40px; background-size: contain; background-repeat: no-repeat; background-position: center; z-index: 5; opacity: 0.9; }
 
-.frame { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--zen-gold); position: relative; margin-bottom: 12px; background: #fff; }
+.frame { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--azbt-gold); position: relative; margin-bottom: 12px; background: #fff; flex-shrink: 0; }
 .frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-.frame::after { content: '\f1b0'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; bottom: -2px; right: 5px; font-size: 1rem; background: #fff; color: var(--zen-gold); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--zen-gold); }
+.frame::after { content: '\f1b0'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; bottom: -2px; right: 5px; font-size: 1rem; background: #fff; color: var(--azbt-gold); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border: 1.5px solid var(--azbt-gold); }
 
 .name { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; margin: 0; letter-spacing: 0.5px; }
-.class-info { font-size: 0.8rem; font-weight: 600; color: var(--zen-maroon); margin-top: 2px; text-transform: uppercase; }
+.class-info { font-size: 0.8rem; font-weight: 600; color: var(--azbt-maroon); margin-top: 2px; text-transform: uppercase; }
 .dept-info { font-size: 0.7rem; font-weight: 400; color: #666; margin-bottom: 10px; }
-.pos { background: var(--zen-blue); color: #fff; padding: 4px 14px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; }
+.pos { background: var(--azbt-blue); color: #fff; padding: 4px 14px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; }
 
-.btn-portal { margin-top: 15px; }
-.btn-portal a { background: var(--zen-blue); color: #fff; text-decoration: none; padding: 8px 20px; border-radius: 6px; font-weight: 400; font-size: 11px; letter-spacing: 1px; transition: 0.3s; }
-.btn-portal a:hover { background: var(--zen-maroon); }
+/* STICKY BOTTOM BUTTON */
+.btn-portal { margin-top: auto; padding-top: 15px; flex-shrink: 0; }
+.btn-portal a { background: var(--azbt-blue); color: #fff; text-decoration: none; padding: 8px 20px; border-radius: 6px; font-weight: 400; font-size: 11px; letter-spacing: 1px; transition: 0.3s; display: inline-block; }
+.btn-portal a:hover { background: var(--azbt-maroon); }
 
-.skeleton { width: 100%; height: 280px; background: #eee; border-radius: 12px; animation: pulse 1.5s infinite; }
+.skeleton { width: 100%; height: 100%; background: #eee; border-radius: 12px; animation: pulse 1.5s infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 </style>
 </head>
 <body oncontextmenu="return false;">
 
 <div class="container" id="app">
-    <div id="loading"><div class="skeleton"></div></div>
-    <div id="main-content" style="display:none">
-        <div class="main-heading">Zoologist Association of Loyola College</div>
-        <div id="ay" class="ay-text"></div>
-        <div class="header-line"></div>
-        <div id="zalc-title" class="zalc-name-title"></div>
+    <div id="loading" style="height:100%"><div class="skeleton"></div></div>
+    
+    <div id="main-content" style="display:none; height:100%; flex-direction:column;">
+        <div class="header-section">
+            <div class="main-heading">Zoologist Association of Loyola College</div>
+            <div id="ay" class="ay-text"></div>
+            <div class="header-line"></div>
+            <div id="zalc-title" class="zalc-name-title"></div>
+        </div>
+
         <div class="slider-wrap" id="sw">
             <button class="nav-btn prev" onclick="moveSlide(-1)"><i class="fas fa-chevron-left"></i></button>
             <div class="slider" id="sd"></div>
             <button class="nav-btn next" onclick="moveSlide(1)"><i class="fas fa-chevron-right"></i></button>
         </div>
-        <div class="btn-portal"><a href="https://azbtweb.wixsite.com/zen-dna/zalc-members" target="_blank">ZALC Members Portal →</a></div>
+
+        <div class="btn-portal"><a href="https://loyolazoology.wixsite.com/az-bt/zalc-members" target="_blank">ZALC Members Portal →</a></div>
     </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 <script>
-document.addEventListener('keydown', function(e) {
-    if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && [73, 74, 67].includes(e.keyCode)) || (e.ctrlKey && e.keyCode == 85)) {
-        e.preventDefault(); return false;
-    }
-});
-document.addEventListener('keyup', function(e) { 
-    if (e.key == "PrintScreen") { navigator.clipboard.writeText(""); alert('Screenshots disabled.'); } 
-});
-
-const M_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVJQvFnPF1VyjviyayOG3_amxou7SLiM2KniqdxOAGy-GTySJtBgxWvlevoKa8zqd3UwT7dACQYm9I/pub?gid=0&single=true&output=csv";
-const I_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRVJQvFnPF1VyjviyayOG3_amxou7SLiM2KniqdxOAGy-GTySJtBgxWvlevoKa8zqd3UwT7dACQYm9I/pub?gid=635742688&single=true&output=csv";
+const M_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTwAvYB7vN6-3QMgpP8ZLBBcfTz1s_Nq3F4BCifEPpIuZTaWy5pvb33N7RMCPyWGW_rJDv6xsPC2p4d/pub?gid=0&single=true&output=csv";
+const I_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTwAvYB7vN6-3QMgpP8ZLBBcfTz1s_Nq3F4BCifEPpIuZTaWy5pvb33N7RMCPyWGW_rJDv6xsPC2p4d/pub?gid=542552535&single=true&output=csv";
 
 let cur = 0, ttl = 0, logoUrl = "", slideInterval;
 
@@ -197,11 +163,8 @@ async function init() {
         const iDataAll = (Papa.parse(await iR.text(), {header:true})).data;
         const mDataAll = (Papa.parse(await mR.text(), {header:true})).data;
         
-        // --- ACADEMIC YEAR LOGIC ---
         const currentYear = new Date().getFullYear();
         const nextAY = `${currentYear}-${currentYear + 1}`;
-        
-        // Find config matching next academic year, or fallback to the latest row
         let iD = iDataAll.find(row => row["Academic Year"] === nextAY) || iDataAll[iDataAll.length - 1];
         const selectedAY = iD["Academic Year"];
 
@@ -210,7 +173,6 @@ async function init() {
         logoUrl = gU(iD["ZALC Logo"]);
         
         const s = document.getElementById('sd');
-        // Filter members strictly by the selected Academic Year
         const vM = mDataAll.filter(m => m.Name && m.Name !== "" && m["Academic Year"] === selectedAY);
         ttl = vM.length;
 
@@ -229,7 +191,7 @@ async function init() {
         });
 
         document.getElementById('loading').style.display = 'none';
-        document.getElementById('main-content').style.display = 'block';
+        document.getElementById('main-content').style.display = 'flex';
         
         window.addEventListener('resize', updateSlide);
         initTouch(); resetTimer();
